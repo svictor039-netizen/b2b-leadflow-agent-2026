@@ -118,3 +118,37 @@ def send_test_outreach_message_task(self, message_id: str) -> dict:
         return {"message_id": message_id, "status": "FAILED", "error": exc.code}
     finally:
         db.close()
+
+
+@celery_app.task(
+    name="app.workers.tasks.process_test_campaign_execution_task",
+    bind=True,
+    max_retries=0,
+)
+def process_test_campaign_execution_task(self, run_id: str) -> dict:
+    """Process one batch of a Stage 5 test execution run. No provider choice."""
+    from uuid import UUID
+
+    from app.core.database import SessionLocal
+    from app.core.exceptions import AppError
+    from app.services.execution_service import process_execution_run
+
+    db = SessionLocal()
+    try:
+        result = process_execution_run(db, UUID(run_id))
+        return {
+            "run_id": str(result.id),
+            "status": result.status,
+            "processed_count": result.processed_count,
+            "sent_count": result.sent_count,
+        }
+    except AppError as exc:
+        db.rollback()
+        logger.warning("Execution task app error: %s", exc.message)
+        return {"run_id": run_id, "status": "ERROR", "error": exc.code}
+    except Exception:  # noqa: BLE001
+        db.rollback()
+        logger.warning("Execution task unexpected error run_id=%s", run_id)
+        return {"run_id": run_id, "status": "ERROR", "error": "processing_error"}
+    finally:
+        db.close()

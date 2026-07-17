@@ -143,3 +143,39 @@ API кампаний/компаний/локаций/контактов. Fronten
 Миграция `0005_safe_outreach`, unique constraints, mock-доказательство отсутствия send на draft/approve, тесты, Docker smoke, docs.
 
 См. [STAGE4_SAFE_OUTREACH.md](STAGE4_SAFE_OUTREACH.md)
+
+## Stage 5 — Safe Test Campaign Orchestration & Analytics
+
+**Русское название:** Этап 5 — безопасный тестовый запуск кампаний и аналитика.
+
+### Цель
+
+Управляемый тестовый запуск группы Stage 4 `APPROVED` сообщений: snapshot run, ручные Start/Pause/Resume/Cancel, batch через Celery, только `TestEmailProvider`, тестовая аналитика — без реальной рассылки и без scheduler auto-start.
+
+### Модели
+
+- `CampaignExecutionRun` — запуск (`TEST_MANUAL_ONLY`), counters, timestamps
+- `CampaignExecutionItem` — неизменяемый snapshot ссылок на `OutreachMessage`
+
+### API
+
+- `POST/GET /api/campaigns/{id}/execution-runs`
+- Start / Pause / Resume / Cancel
+- Items + `GET /api/campaigns/{id}/analytics`
+
+### Safety
+
+- Оркестратор вызывает Stage 4 send service (не дублирует provider)
+- Recipient только `@example.test`
+- `SYSTEM_STOP_ALL` → BLOCKED; no auto-retry UNKNOWN
+- `beat_schedule` пуст
+
+См. [STAGE5_TEST_ORCHESTRATION.md](STAGE5_TEST_ORCHESTRATION.md)
+
+## Roadmap (будущие этапы — не в scope Stage 5)
+
+| Stage | Название |
+|---|---|
+| 6 | Compliance, Suppression & Provider Readiness |
+| 7 | Controlled Live Pilot |
+| 8 | Production Hardening & Deployment |

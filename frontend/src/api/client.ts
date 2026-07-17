@@ -271,6 +271,48 @@ export const api = {
       `/api/campaigns/${campaignId}/outreach/messages/${messageId}/send`,
       { method: "POST" },
     ),
+
+  createExecutionRun: (campaignId: string, body: unknown) =>
+    request<import("./execution").ExecutionRun>(
+      `/api/campaigns/${campaignId}/execution-runs`,
+      { method: "POST", body: JSON.stringify(body) },
+    ),
+  listExecutionRuns: (campaignId: string, params: URLSearchParams) =>
+    request<{ items: import("./execution").ExecutionRun[]; total: number }>(
+      `/api/campaigns/${campaignId}/execution-runs?${params}`,
+    ),
+  getExecutionRun: (campaignId: string, runId: string) =>
+    request<import("./execution").ExecutionRun>(
+      `/api/campaigns/${campaignId}/execution-runs/${runId}`,
+    ),
+  startExecutionRun: (campaignId: string, runId: string) =>
+    request<import("./execution").ExecutionRun>(
+      `/api/campaigns/${campaignId}/execution-runs/${runId}/start?async_mode=false`,
+      { method: "POST" },
+    ),
+  pauseExecutionRun: (campaignId: string, runId: string) =>
+    request<import("./execution").ExecutionRun>(
+      `/api/campaigns/${campaignId}/execution-runs/${runId}/pause`,
+      { method: "POST" },
+    ),
+  resumeExecutionRun: (campaignId: string, runId: string) =>
+    request<import("./execution").ExecutionRun>(
+      `/api/campaigns/${campaignId}/execution-runs/${runId}/resume?async_mode=false`,
+      { method: "POST" },
+    ),
+  cancelExecutionRun: (campaignId: string, runId: string) =>
+    request<import("./execution").ExecutionRun>(
+      `/api/campaigns/${campaignId}/execution-runs/${runId}/cancel`,
+      { method: "POST" },
+    ),
+  listExecutionItems: (campaignId: string, runId: string, params: URLSearchParams) =>
+    request<{ items: import("./execution").ExecutionItem[]; total: number }>(
+      `/api/campaigns/${campaignId}/execution-runs/${runId}/items?${params}`,
+    ),
+  getCampaignAnalytics: (campaignId: string) =>
+    request<import("./execution").CampaignAnalytics>(
+      `/api/campaigns/${campaignId}/analytics`,
+    ),
 };
 
 export const campaignStatusLabel: Record<CampaignStatus, string> = {

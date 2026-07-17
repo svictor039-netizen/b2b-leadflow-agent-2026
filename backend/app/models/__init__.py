@@ -3,6 +3,8 @@ from app.models.campaign_lead import CampaignLead
 from app.models.company import Company, CompanyLocation
 from app.models.contact import Contact
 from app.models.data_source import CompanySourceRecord, DataSource
+from app.models.execution_item import CampaignExecutionItem
+from app.models.execution_run import CampaignExecutionRun
 from app.models.lead_score_snapshot import LeadScoreSnapshot
 from app.models.outreach_message import OutreachMessage
 from app.models.outreach_sequence import OutreachSequence, OutreachSequenceStep
@@ -13,6 +15,7 @@ from app.models.send_attempt import SendAttempt
 from app.models.enums import (
     ALLOWED_OUTREACH_PROVIDER,
     ALLOWED_RESEARCH_ADAPTERS,
+    DELIVERY_OUTCOME_UNKNOWN,
     MAX_OUTREACH_BODY,
     MAX_OUTREACH_LIST_LIMIT,
     MAX_OUTREACH_SEQUENCE_STEPS,
@@ -31,6 +34,9 @@ from app.models.enums import (
     ContactType,
     DataSourceType,
     DraftItemOutcome,
+    ExecutionItemStatus,
+    ExecutionMode,
+    ExecutionRunStatus,
     OutreachApprovalDecision,
     OutreachMessageStatus,
     QualificationItemOutcome,
@@ -47,6 +53,7 @@ from app.models.enums import (
 __all__ = [
     "ALLOWED_OUTREACH_PROVIDER",
     "ALLOWED_RESEARCH_ADAPTERS",
+    "DELIVERY_OUTCOME_UNKNOWN",
     "MAX_OUTREACH_BODY",
     "MAX_OUTREACH_LIST_LIMIT",
     "MAX_OUTREACH_SEQUENCE_STEPS",
@@ -58,6 +65,8 @@ __all__ = [
     "SCORING_VERSION",
     "TEST_EMAIL_DOMAIN",
     "Campaign",
+    "CampaignExecutionItem",
+    "CampaignExecutionRun",
     "CampaignLead",
     "CampaignLeadStatus",
     "CampaignStatus",
@@ -71,6 +80,9 @@ __all__ = [
     "DataSource",
     "DataSourceType",
     "DraftItemOutcome",
+    "ExecutionItemStatus",
+    "ExecutionMode",
+    "ExecutionRunStatus",
     "LeadScoreSnapshot",
     "OutreachApprovalDecision",
     "OutreachMessage",

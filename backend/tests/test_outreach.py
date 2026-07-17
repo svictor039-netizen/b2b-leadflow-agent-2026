@@ -53,11 +53,33 @@ def _cleanup_committed_campaign(db_engine, campaign_id) -> None:
     """Remove campaign + demo companies left by committed concurrent/setup sessions."""
     from sqlalchemy import delete
 
-    from app.models import Campaign, Company
+    from app.models import (
+        Campaign,
+        CampaignExecutionItem,
+        CampaignExecutionRun,
+        Company,
+    )
 
     SessionLocal = sessionmaker(bind=db_engine, autoflush=False, autocommit=False)
     session = SessionLocal()
     try:
+        run_ids = list(
+            session.scalars(
+                select(CampaignExecutionRun.id).where(
+                    CampaignExecutionRun.campaign_id == campaign_id
+                )
+            ).all()
+        )
+        if run_ids:
+            session.execute(
+                delete(CampaignExecutionItem).where(
+                    CampaignExecutionItem.execution_run_id.in_(run_ids)
+                )
+            )
+            session.execute(
+                delete(CampaignExecutionRun).where(CampaignExecutionRun.id.in_(run_ids))
+            )
+            session.commit()
         camp = session.get(Campaign, campaign_id)
         if camp is not None:
             session.delete(camp)
