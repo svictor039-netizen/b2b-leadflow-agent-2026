@@ -11,9 +11,17 @@ from sqlalchemy import engine_from_config, pool
 from app.core.config import get_settings
 from app.core.database import Base
 
+# Import models so metadata is populated for autogenerate / env.
+import app.models  # noqa: F401
+
 config = context.config
 settings = get_settings()
-config.set_main_option("sqlalchemy.url", settings.database_url)
+existing_url = config.get_main_option("sqlalchemy.url")
+if not existing_url or existing_url.startswith("driver://"):
+    config.set_main_option(
+        "sqlalchemy.url",
+        settings.database_url.replace("%", "%%"),
+    )
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
