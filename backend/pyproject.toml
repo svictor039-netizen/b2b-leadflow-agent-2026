@@ -1,0 +1,14 @@
+[project]
+name = "b2b-leadflow-backend"
+version = "0.1.0"
+description = "B2B LeadFlow Agent 2026 — backend (stage 0)"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

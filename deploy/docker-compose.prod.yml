@@ -1,0 +1,12 @@
+# Production compose overlay — stage 0 placeholder
+# Full production deployment is planned for later stages.
+
+services:
+  backend:
+    environment:
+      ENVIRONMENT: production
+      DEBUG: "false"
+
+  frontend:
+    ports:
+      - "80:80"
