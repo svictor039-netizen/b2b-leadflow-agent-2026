@@ -35,5 +35,5 @@ def version() -> dict:
     return {
         "version": settings.app_version,
         "environment": settings.environment,
-        "stage": "0",
+        "stage": "1",
     }

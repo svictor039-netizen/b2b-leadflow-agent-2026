@@ -1,0 +1,9 @@
+# Keep this file LF as well
+.gitattributes text eol=lf
+
+# Shell scripts must keep LF for Linux containers
+*.sh text eol=lf
+
+# Docker/Linux config convenience
+Dockerfile text eol=lf
+**/Dockerfile text eol=lf

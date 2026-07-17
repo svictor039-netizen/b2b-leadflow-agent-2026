@@ -4,19 +4,13 @@ import { HealthStatus } from "./components/HealthStatus";
 import { TestModeBanner } from "./components/TestModeBanner";
 import { EmptySection } from "./components/EmptySection";
 import { SettingsPlaceholder } from "./components/SettingsPlaceholder";
+import { CampaignsPage } from "./pages/CampaignsPage";
+import { CompaniesPage } from "./pages/CompaniesPage";
 
 const SECTION_CONTENT: Record<
-  Exclude<SectionId, "dashboard">,
+  Exclude<SectionId, "dashboard" | "campaigns" | "companies" | "settings">,
   { title: string; description: string }
 > = {
-  campaigns: {
-    title: "Кампании",
-    description: "Создание и управление кампаниями (1 ниша, 1 регион, до 30 компаний).",
-  },
-  companies: {
-    title: "Компании",
-    description: "Список найденных компаний из TestSourceAdapter.",
-  },
   funnels: {
     title: "Воронки",
     description: "Шаблоны писем и этапы воронки (до 3 писем на адресат).",
@@ -33,10 +27,6 @@ const SECTION_CONTENT: Record<
     title: "Заинтересованные лиды",
     description: "Лиды, отметившие интерес к предложению.",
   },
-  settings: {
-    title: "Настройки",
-    description: "Конфигурация провайдеров, SYSTEM_STOP_ALL и параметры MVP.",
-  },
 };
 
 function DashboardHome() {
@@ -44,7 +34,7 @@ function DashboardHome() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-slate-900">Dashboard</h2>
-        <p className="text-sm text-slate-500">Каркас B2B LeadFlow Agent — этап 0</p>
+        <p className="text-sm text-slate-500">B2B LeadFlow Agent — этап 1 (кампании и компании)</p>
       </div>
       <TestModeBanner />
       <HealthStatus />
@@ -59,6 +49,10 @@ export default function App() {
     <Layout active={section} onNavigate={setSection}>
       {section === "dashboard" ? (
         <DashboardHome />
+      ) : section === "campaigns" ? (
+        <CampaignsPage />
+      ) : section === "companies" ? (
+        <CompaniesPage />
       ) : section === "settings" ? (
         <SettingsPlaceholder />
       ) : (
