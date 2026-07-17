@@ -34,6 +34,11 @@ API кампаний/компаний/локаций/контактов. Fronten
 
 **Не входит:** реальный поиск, scraping, enrichment, скоринг, LLM, SMTP/IMAP, отправка, дедупликация, авторизация, деплой.
 
-## Следующие этапы
+## Этап 2 — safe research
 
-Очередь с ручным approve, enrichment, воронка писем (без авто-отправки LLM), затем провайдеры по явному разрешению.
+- Только `TestSourceAdapter`
+- Provenance + дедупликация (domain / source_record_id)
+- `POST /api/research/runs`, `GET /api/research/runs/{id}`
+- См. [STAGE2_RESEARCH.md](STAGE2_RESEARCH.md)
+
+**Не входит:** реальный поиск, scraping, SMTP/IMAP, outreach, сбор реальных email.

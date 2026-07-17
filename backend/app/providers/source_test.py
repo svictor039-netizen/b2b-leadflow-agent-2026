@@ -8,6 +8,10 @@ _DEMO_COMPANIES: list[CompanyRecord] = [
         niche="B2B SaaS",
         contact_email="hello@nordicsaas.example",
         description="Demo SaaS company for stage 0 testing.",
+        website="https://www.nordicsaas.example/",
+        source_record_id="test-nordic-saas-1",
+        source_url="https://test-source.example/companies/nordic-saas",
+        is_test_data=True,
     ),
     CompanyRecord(
         name="Baltic Logistics Pro",
@@ -16,6 +20,10 @@ _DEMO_COMPANIES: list[CompanyRecord] = [
         niche="Logistics",
         contact_email="sales@balticlog.example",
         description="Demo logistics company.",
+        website="https://balticlog.example",
+        source_record_id="test-baltic-log-1",
+        source_url="https://test-source.example/companies/baltic-log",
+        is_test_data=True,
     ),
     CompanyRecord(
         name="Central FinTech Group",
@@ -24,6 +32,10 @@ _DEMO_COMPANIES: list[CompanyRecord] = [
         niche="FinTech",
         contact_email="info@centralfin.example",
         description="Demo FinTech company.",
+        website="https://centralfin.example/about",
+        source_record_id="test-central-fin-1",
+        source_url="https://test-source.example/companies/central-fin",
+        is_test_data=True,
     ),
     CompanyRecord(
         name="Green Energy Partners",
@@ -32,6 +44,10 @@ _DEMO_COMPANIES: list[CompanyRecord] = [
         niche="Renewable Energy",
         contact_email="contact@greenenergy.example",
         description="Demo energy sector company.",
+        website="https://www.greenenergy.example",
+        source_record_id="test-green-energy-1",
+        source_url="https://test-source.example/companies/green-energy",
+        is_test_data=True,
     ),
     CompanyRecord(
         name="MedTech Innovations",
@@ -40,6 +56,10 @@ _DEMO_COMPANIES: list[CompanyRecord] = [
         niche="Healthcare IT",
         contact_email="team@medtech.example",
         description="Demo healthcare IT company.",
+        website="https://medtech.example",
+        source_record_id="test-medtech-1",
+        source_url="https://test-source.example/companies/medtech",
+        is_test_data=True,
     ),
 ]
 

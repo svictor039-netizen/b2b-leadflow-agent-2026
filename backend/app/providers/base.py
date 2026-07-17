@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 
 
 @dataclass
@@ -41,6 +41,11 @@ class CompanyRecord:
     niche: str
     contact_email: str
     description: str = ""
+    website: str | None = None
+    phone: str | None = None
+    source_record_id: str | None = None
+    source_url: str | None = None
+    is_test_data: bool = True
 
 
 class SourceAdapter(ABC):

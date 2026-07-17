@@ -22,7 +22,7 @@ def _base_url() -> str:
     return os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL") or ""
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def migration_url() -> str:
     if os.getenv("SKIP_DB_TESTS") == "1":
         pytest.skip("SKIP_DB_TESTS=1")
@@ -63,16 +63,51 @@ def test_alembic_upgrade_head_and_tables(migration_url: str) -> None:
         "data_sources",
         "company_source_records",
         "campaign_leads",
+        "research_runs",
         "alembic_version",
     }
     assert expected.issubset(tables)
 
+    insp = inspect(engine)
+    uniques = {
+        u["name"] for u in insp.get_unique_constraints("company_source_records")
+    }
+    assert "uq_company_source_records_source_external" in uniques
+    indexes = {i["name"]: i for i in insp.get_indexes("companies")}
+    assert "uq_companies_domain_not_null" in indexes
+    assert indexes["uq_companies_domain_not_null"]["unique"] is True
+
+    # Idempotent upgrade
     command.upgrade(cfg, "head")
 
-    command.downgrade(cfg, "0001_stage0_baseline")
+    # One-step downgrade then re-upgrade (Stage 1 schema preserved)
+    command.downgrade(cfg, "-1")
     tables_after = set(inspect(engine).get_table_names())
-    assert "campaigns" not in tables_after
+    assert "research_runs" not in tables_after
+    assert "campaigns" in tables_after
+    assert "company_source_records" in tables_after
 
     command.upgrade(cfg, "head")
-    assert "campaigns" in set(inspect(engine).get_table_names())
+    assert "research_runs" in set(inspect(engine).get_table_names())
+    engine.dispose()
+
+
+def test_alembic_stage1_then_stage2(migration_url: str) -> None:
+    """Upgrade from empty → Stage 1 → Stage 2 without data loss markers."""
+    cfg = _alembic_config(migration_url)
+    command.upgrade(cfg, "0002_campaigns_companies")
+    engine = create_engine(migration_url, poolclass=NullPool)
+    with engine.begin() as conn:
+        conn.execute(
+            text(
+                "INSERT INTO campaigns (id, name, business_type, region, offer, status, created_at, updated_at) "
+                "VALUES (gen_random_uuid(), 'mig-keep', 'SaaS', 'EU', 'Demo', 'DRAFT', now(), now())"
+            )
+        )
+    command.upgrade(cfg, "head")
+    with engine.connect() as conn:
+        name = conn.execute(text("SELECT name FROM campaigns WHERE name = 'mig-keep'")).scalar()
+        assert name == "mig-keep"
+        version = conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
+        assert version == "0003_research_runs"
     engine.dispose()

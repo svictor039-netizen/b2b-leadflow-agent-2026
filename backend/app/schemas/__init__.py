@@ -19,6 +19,7 @@ from app.schemas.company import (
     LocationRead,
     LocationUpdate,
 )
+from app.schemas.research import ResearchRunCreate, ResearchRunRead
 
 __all__ = [
     "CampaignCreate",
@@ -38,4 +39,6 @@ __all__ = [
     "LocationCreate",
     "LocationRead",
     "LocationUpdate",
+    "ResearchRunCreate",
+    "ResearchRunRead",
 ]
