@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import Boolean, Float, ForeignKey, String, Text
+from sqlalchemy import Boolean, Float, ForeignKey, Index, String, Text, text
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -13,12 +13,20 @@ from app.models.mixins import TimestampMixin, UUIDPrimaryKeyMixin
 
 if TYPE_CHECKING:
     from app.models.campaign_lead import CampaignLead
-    from app.models.company_source_record import CompanySourceRecord
     from app.models.contact import Contact
+    from app.models.data_source import CompanySourceRecord
 
 
 class Company(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     __tablename__ = "companies"
+    __table_args__ = (
+        Index(
+            "uq_companies_domain_not_null",
+            "domain",
+            unique=True,
+            postgresql_where=text("domain IS NOT NULL"),
+        ),
+    )
 
     name: Mapped[str] = mapped_column(String(300), nullable=False)
     legal_name: Mapped[str | None] = mapped_column(String(300), nullable=True)

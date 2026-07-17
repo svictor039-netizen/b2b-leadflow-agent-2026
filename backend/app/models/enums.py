@@ -79,3 +79,25 @@ class DataSourceType(StrEnum):
     TEST = "TEST"
     CATALOG = "CATALOG"
     OTHER = "OTHER"
+
+
+class ResearchRunStatus(StrEnum):
+    PENDING = "PENDING"
+    RUNNING = "RUNNING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    BLOCKED = "BLOCKED"
+
+
+class ResearchItemOutcome(StrEnum):
+    CREATED = "created"
+    MATCHED_EXISTING = "matched_existing"
+    UPDATED = "updated"
+    SKIPPED = "skipped"
+    CONFLICT = "conflict"
+
+
+# Stage 2: only TestSourceAdapter is allowed
+ALLOWED_RESEARCH_ADAPTERS = frozenset({"test_source"})
+MAX_RESEARCH_LIMIT = 30
+MAX_QUERY_LENGTH = 200

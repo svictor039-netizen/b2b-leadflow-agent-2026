@@ -6,6 +6,8 @@ class SystemStopAllError(Exception):
 
 
 def is_system_stopped() -> bool:
+    # Re-read env each check so kill switch flips are visible without process restart.
+    get_settings.cache_clear()
     return get_settings().system_stop_all
 
 
