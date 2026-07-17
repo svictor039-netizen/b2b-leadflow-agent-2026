@@ -133,3 +133,64 @@ class QualificationItemOutcome(StrEnum):
 
 SCORING_VERSION = "stage3-v1"
 MAX_REVIEW_NOTE_LENGTH = 500
+
+
+# --- Stage 4: safe outreach ---
+
+class OutreachMessageStatus(StrEnum):
+    DRAFT = "DRAFT"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    SENDING = "SENDING"
+    SENT = "SENT"
+    FAILED = "FAILED"
+    BLOCKED = "BLOCKED"
+
+
+class OutreachApprovalDecision(StrEnum):
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+
+
+class SendAttemptStatus(StrEnum):
+    PENDING = "PENDING"
+    SUCCESS = "SUCCESS"
+    FAILED = "FAILED"
+    BLOCKED = "BLOCKED"
+
+
+class DraftItemOutcome(StrEnum):
+    CREATED = "created"
+    MATCHED_EXISTING = "matched_existing"
+    SKIPPED = "skipped"
+    CONFLICT = "conflict"
+    FAILED = "failed"
+
+
+MAX_OUTREACH_TEMPLATE_NAME = 200
+MAX_OUTREACH_SUBJECT = 200
+MAX_OUTREACH_BODY = 5000
+MAX_OUTREACH_SEQUENCE_NAME = 200
+MAX_OUTREACH_SEQUENCE_STEPS = 3
+MAX_OUTREACH_REJECT_NOTE = 500
+MAX_OUTREACH_LIST_LIMIT = 100
+TEST_EMAIL_DOMAIN = "example.test"
+ALLOWED_OUTREACH_PROVIDER = "test_email"
+OUTREACH_TEMPLATE_VARIABLES = frozenset(
+    {
+        "company_name",
+        "company_domain",
+        "company_location",
+        "company_industry",
+        "campaign_name",
+        "lead_score",
+        "qualification_status",
+    }
+)
+
+# Stale PENDING outbox: delivery outcome unknown — never auto-SENT.
+DELIVERY_OUTCOME_UNKNOWN = "DELIVERY_OUTCOME_UNKNOWN"
+DELIVERY_OUTCOME_UNKNOWN_USER_MESSAGE = (
+    "Результат тестовой отправки не подтверждён. Автоматический повтор заблокирован."
+)

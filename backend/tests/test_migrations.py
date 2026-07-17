@@ -66,6 +66,11 @@ def test_alembic_upgrade_head_and_tables(migration_url: str) -> None:
         "research_runs",
         "qualification_runs",
         "lead_score_snapshots",
+        "outreach_templates",
+        "outreach_sequences",
+        "outreach_sequence_steps",
+        "outreach_messages",
+        "send_attempts",
         "alembic_version",
     }
     assert expected.issubset(tables)
@@ -79,6 +84,9 @@ def test_alembic_upgrade_head_and_tables(migration_url: str) -> None:
     assert "uq_campaign_leads_campaign_company" in lead_uniques
     snap_uniques = {u["name"] for u in insp.get_unique_constraints("lead_score_snapshots")}
     assert "uq_lead_score_snapshots_run_lead" in snap_uniques
+    msg_uniques = {u["name"] for u in insp.get_unique_constraints("outreach_messages")}
+    assert "uq_outreach_messages_lead_step" in msg_uniques
+    assert "uq_outreach_messages_idempotency_key" in msg_uniques
     indexes = {i["name"]: i for i in insp.get_indexes("companies")}
     assert "uq_companies_domain_not_null" in indexes
     assert indexes["uq_companies_domain_not_null"]["unique"] is True
@@ -86,16 +94,18 @@ def test_alembic_upgrade_head_and_tables(migration_url: str) -> None:
     # Idempotent upgrade
     command.upgrade(cfg, "head")
 
-    # One-step downgrade removes Stage 3 only
+    # One-step downgrade removes Stage 4 only
     command.downgrade(cfg, "-1")
     tables_after = set(inspect(engine).get_table_names())
-    assert "qualification_runs" not in tables_after
-    assert "lead_score_snapshots" not in tables_after
+    assert "outreach_messages" not in tables_after
+    assert "send_attempts" not in tables_after
+    assert "outreach_templates" not in tables_after
+    assert "qualification_runs" in tables_after
     assert "research_runs" in tables_after
     assert "campaigns" in tables_after
 
     command.upgrade(cfg, "head")
-    assert "qualification_runs" in set(inspect(engine).get_table_names())
+    assert "outreach_messages" in set(inspect(engine).get_table_names())
     engine.dispose()
 
 
@@ -116,5 +126,5 @@ def test_alembic_stage1_then_head_preserves_data(migration_url: str) -> None:
         name = conn.execute(text("SELECT name FROM campaigns WHERE name = 'mig-keep'")).scalar()
         assert name == "mig-keep"
         version = conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
-        assert version == "0004_qualification"
+        assert version == "0005_safe_outreach"
     engine.dispose()

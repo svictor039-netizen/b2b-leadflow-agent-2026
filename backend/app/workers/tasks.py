@@ -90,3 +90,31 @@ def run_qualification_task(self, run_id: str) -> dict:
         return {"run_id": run_id, "status": "FAILED", "error": exc.code}
     finally:
         db.close()
+
+
+@celery_app.task(
+    name="app.workers.tasks.send_test_outreach_message_task",
+    bind=True,
+    max_retries=0,
+)
+def send_test_outreach_message_task(self, message_id: str) -> dict:
+    """Explicit Stage 4 test send for an existing OutreachMessage. No provider choice."""
+    from uuid import UUID
+
+    from app.core.database import SessionLocal
+    from app.core.exceptions import AppError
+    from app.services.outreach_service import send_message_by_id
+
+    db = SessionLocal()
+    try:
+        result = send_message_by_id(db, UUID(message_id))
+        return {
+            "message_id": str(result.id),
+            "status": result.status,
+            "sent_at": result.sent_at.isoformat() if result.sent_at else None,
+        }
+    except AppError as exc:
+        logger.warning("Outreach send task app error: %s", exc.message)
+        return {"message_id": message_id, "status": "FAILED", "error": exc.code}
+    finally:
+        db.close()
