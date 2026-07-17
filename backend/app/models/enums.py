@@ -194,3 +194,66 @@ DELIVERY_OUTCOME_UNKNOWN = "DELIVERY_OUTCOME_UNKNOWN"
 DELIVERY_OUTCOME_UNKNOWN_USER_MESSAGE = (
     "Результат тестовой отправки не подтверждён. Автоматический повтор заблокирован."
 )
+
+
+# --- Stage 5: test campaign orchestration ---
+
+class ExecutionRunStatus(StrEnum):
+    DRAFT = "DRAFT"
+    PENDING = "PENDING"
+    RUNNING = "RUNNING"
+    PAUSED = "PAUSED"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    BLOCKED = "BLOCKED"
+    CANCELLED = "CANCELLED"
+
+
+class ExecutionItemStatus(StrEnum):
+    PENDING = "PENDING"
+    PROCESSING = "PROCESSING"
+    SENT = "SENT"
+    FAILED = "FAILED"
+    BLOCKED = "BLOCKED"
+    SKIPPED = "SKIPPED"
+    UNKNOWN = "UNKNOWN"
+    CANCELLED = "CANCELLED"
+
+
+class ExecutionMode(StrEnum):
+    TEST_MANUAL_ONLY = "TEST_MANUAL_ONLY"
+
+
+EXECUTION_TERMINAL_STATUSES = frozenset(
+    {
+        ExecutionRunStatus.COMPLETED.value,
+        ExecutionRunStatus.FAILED.value,
+        ExecutionRunStatus.BLOCKED.value,
+        ExecutionRunStatus.CANCELLED.value,
+    }
+)
+EXECUTION_ACTIVE_STATUSES = frozenset(
+    {
+        ExecutionRunStatus.DRAFT.value,
+        ExecutionRunStatus.PENDING.value,
+        ExecutionRunStatus.RUNNING.value,
+        ExecutionRunStatus.PAUSED.value,
+    }
+)
+ITEM_TERMINAL_STATUSES = frozenset(
+    {
+        ExecutionItemStatus.SENT.value,
+        ExecutionItemStatus.FAILED.value,
+        ExecutionItemStatus.BLOCKED.value,
+        ExecutionItemStatus.SKIPPED.value,
+        ExecutionItemStatus.UNKNOWN.value,
+        ExecutionItemStatus.CANCELLED.value,
+    }
+)
+
+MAX_EXECUTION_MESSAGES = 100
+MIN_EXECUTION_MESSAGES = 1
+MAX_EXECUTION_BATCH_SIZE = 10
+MIN_EXECUTION_BATCH_SIZE = 1
+MAX_EXECUTION_LIST_LIMIT = 100
+PROCESSING_ITEM_STALE_AFTER_SECONDS = 30

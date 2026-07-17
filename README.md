@@ -1,8 +1,8 @@
 # B2B LeadFlow Agent 2026
 
-Проект VCd03 — этапы 0–4. B2B lead generation: Docker, кампании/компании, safe research (Stage 2),
-квалификация и scoring лидов (Stage 3), безопасные тестовые шаблоны и ручная отправка через TestEmailProvider (Stage 4).
-Реальная отправка email и outreach **не реализованы** (Stage 4).
+Проект VCd03 — этапы 0–5. B2B lead generation: Docker, кампании/компании, safe research (Stage 2),
+квалификация (Stage 3), тестовые шаблоны и ручная отправка через TestEmailProvider (Stage 4),
+безопасный тестовый запуск кампаний и аналитика (Stage 5). Реальная рассылка **не реализована**.
 
 ## РЎС‚РµРє
 
@@ -37,9 +37,9 @@ docker compose exec backend alembic heads
 docker compose exec backend alembic upgrade head
 ```
 
-Ревизии: `0001` → `0002_campaigns_companies` → `0003_research_runs` → `0004_qualification`.
+Ревизии: `0001` → `0002` → `0003_research_runs` → `0004_qualification` → `0005_safe_outreach` → `0006_test_campaign_execution`.
 
-Документы этапов: [docs/VCd03_SPEC.md](docs/VCd03_SPEC.md), [docs/STAGE2_RESEARCH.md](docs/STAGE2_RESEARCH.md), [docs/STAGE3_QUALIFICATION.md](docs/STAGE3_QUALIFICATION.md), [docs/STAGE4_SAFE_OUTREACH.md](docs/STAGE4_SAFE_OUTREACH.md).
+Документы: [docs/VCd03_SPEC.md](docs/VCd03_SPEC.md), [STAGE2](docs/STAGE2_RESEARCH.md), [STAGE3](docs/STAGE3_QUALIFICATION.md), [STAGE4](docs/STAGE4_SAFE_OUTREACH.md), [STAGE5](docs/STAGE5_TEST_ORCHESTRATION.md).
 
 ## РџСЂР°РІРёР»Р° РєР°РјРїР°РЅРёР№ (СЌС‚Р°Рї 1)
 

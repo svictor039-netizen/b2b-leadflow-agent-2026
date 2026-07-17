@@ -13,6 +13,7 @@ import {
 } from "../api/client";
 import { QualificationPanel } from "../components/QualificationPanel";
 import { OutreachPanel } from "../components/OutreachPanel";
+import { ExecutionPanel } from "../components/ExecutionPanel";
 import { TestModeBanner } from "../components/TestModeBanner";
 
 interface CampaignFormValues {
@@ -409,6 +410,8 @@ export function CampaignsPage() {
           />
 
           <OutreachPanel campaignId={selectedId} />
+
+          <ExecutionPanel campaignId={selectedId} />
 
           <div>
             <h4 className="mb-2 font-semibold">Компании в кампании</h4>

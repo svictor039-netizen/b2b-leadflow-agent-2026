@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     )
 
     app_name: str = "B2B LeadFlow Agent"
-    app_version: str = Field(default="0.5.0-stage4", alias="APP_VERSION")
+    app_version: str = Field(default="0.6.0-stage5", alias="APP_VERSION")
     environment: str = "development"
     debug: bool = False
 
