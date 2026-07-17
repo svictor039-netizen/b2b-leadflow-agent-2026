@@ -223,6 +223,54 @@ export const api = {
       `/api/campaigns/${campaignId}/leads/${leadId}/review`,
       { method: "POST", body: JSON.stringify(body) },
     ),
+
+  listOutreachTemplates: (campaignId: string) =>
+    request<import("./outreach").OutreachTemplate[]>(
+      `/api/campaigns/${campaignId}/outreach/templates`,
+    ),
+  createOutreachTemplate: (campaignId: string, body: unknown) =>
+    request<import("./outreach").OutreachTemplate>(
+      `/api/campaigns/${campaignId}/outreach/templates`,
+      { method: "POST", body: JSON.stringify(body) },
+    ),
+  updateOutreachTemplate: (campaignId: string, templateId: string, body: unknown) =>
+    request<import("./outreach").OutreachTemplate>(
+      `/api/campaigns/${campaignId}/outreach/templates/${templateId}`,
+      { method: "PATCH", body: JSON.stringify(body) },
+    ),
+  listOutreachSequences: (campaignId: string) =>
+    request<import("./outreach").OutreachSequence[]>(
+      `/api/campaigns/${campaignId}/outreach/sequences`,
+    ),
+  createOutreachSequence: (campaignId: string, body: unknown) =>
+    request<import("./outreach").OutreachSequence>(
+      `/api/campaigns/${campaignId}/outreach/sequences`,
+      { method: "POST", body: JSON.stringify(body) },
+    ),
+  createOutreachDrafts: (campaignId: string, body: unknown) =>
+    request<import("./outreach").DraftCreateResponse>(
+      `/api/campaigns/${campaignId}/outreach/drafts`,
+      { method: "POST", body: JSON.stringify(body) },
+    ),
+  listOutreachMessages: (campaignId: string, params: URLSearchParams) =>
+    request<import("./outreach").OutreachMessageListResponse>(
+      `/api/campaigns/${campaignId}/outreach/messages?${params}`,
+    ),
+  approveOutreachMessage: (campaignId: string, messageId: string) =>
+    request<import("./outreach").OutreachMessage>(
+      `/api/campaigns/${campaignId}/outreach/messages/${messageId}/approve`,
+      { method: "POST" },
+    ),
+  rejectOutreachMessage: (campaignId: string, messageId: string, body?: unknown) =>
+    request<import("./outreach").OutreachMessage>(
+      `/api/campaigns/${campaignId}/outreach/messages/${messageId}/reject`,
+      { method: "POST", body: JSON.stringify(body ?? {}) },
+    ),
+  sendOutreachMessage: (campaignId: string, messageId: string) =>
+    request<import("./outreach").OutreachMessage>(
+      `/api/campaigns/${campaignId}/outreach/messages/${messageId}/send`,
+      { method: "POST" },
+    ),
 };
 
 export const campaignStatusLabel: Record<CampaignStatus, string> = {

@@ -12,6 +12,7 @@ import {
   SendingMode,
 } from "../api/client";
 import { QualificationPanel } from "../components/QualificationPanel";
+import { OutreachPanel } from "../components/OutreachPanel";
 import { TestModeBanner } from "../components/TestModeBanner";
 
 interface CampaignFormValues {
@@ -406,6 +407,8 @@ export function CampaignsPage() {
             businessType={detailQuery.data.business_type}
             region={detailQuery.data.region}
           />
+
+          <OutreachPanel campaignId={selectedId} />
 
           <div>
             <h4 className="mb-2 font-semibold">Компании в кампании</h4>

@@ -104,3 +104,42 @@ API кампаний/компаний/локаций/контактов. Fronten
 Шаблоны писем, генерация писем, email sequences, отправка (в т.ч. TestEmailProvider), реальные провайдеры, массовый outreach, scheduler рассылок.
 
 См. [STAGE3_QUALIFICATION.md](STAGE3_QUALIFICATION.md)
+
+## Stage 4 — Safe Outreach Templates, Manual Approval & Test Delivery
+
+**Русское название:** Этап 4 — безопасные шаблоны писем, ручное подтверждение и тестовая отправка.
+
+### Цель
+
+Безопасный **тестовый** outreach для лидов Stage 3 с `review_decision=APPROVED`: шаблоны, sequences ≤ 3 шагов, детерминированные черновики, ручное подтверждение, явная отправка только через `TestEmailProvider`, test outbox — без реальной внешней доставки и без scheduler auto-send.
+
+### Модели
+
+- `OutreachTemplate` — plain-text шаблон (allowlist variables)
+- `OutreachSequence` + `OutreachSequenceStep` (1–3, unique step)
+- `OutreachMessage` — черновик/сообщение со статусами DRAFT→APPROVED→SENDING→SENT | FAILED | BLOCKED | REJECTED
+- `SendAttempt` — история тестовой отправки / outbox (unique idempotency)
+
+### Получатель
+
+Только `lead-<uuid>@example.test`. Другие домены отклоняются. Не из Contact.
+
+### API (минимум)
+
+- Templates / sequences CRUD под `/api/campaigns/{id}/outreach/...`
+- `POST .../outreach/drafts`
+- Messages list/detail + `approve` / `reject` / `send`
+
+### Safety
+
+- Provider только `TestEmailProvider` (сервер выбирает; пользователь не выбирает SMTP)
+- Approve не шлёт; send явный и идемпотентный (atomic claim)
+- `SYSTEM_STOP_ALL` перед claim → `BLOCKED`, provider не вызывается
+- Шаблоны/approve при STOP разрешены
+- Нет LLM, HTTP/SMTP, Contact, scheduler send
+
+### Критерии готовности
+
+Миграция `0005_safe_outreach`, unique constraints, mock-доказательство отсутствия send на draft/approve, тесты, Docker smoke, docs.
+
+См. [STAGE4_SAFE_OUTREACH.md](STAGE4_SAFE_OUTREACH.md)
