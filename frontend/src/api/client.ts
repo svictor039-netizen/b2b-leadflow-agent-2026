@@ -313,6 +313,47 @@ export const api = {
     request<import("./execution").CampaignAnalytics>(
       `/api/campaigns/${campaignId}/analytics`,
     ),
+  listSuppressions: (params: URLSearchParams) =>
+    request<{ items: import("./compliance").SuppressionEntry[]; total: number }>(
+      `/api/compliance/suppressions?${params}`,
+    ),
+  createSuppression: (body: Record<string, unknown>) =>
+    request<import("./compliance").SuppressionEntry>(`/api/compliance/suppressions`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  deactivateSuppression: (id: string) =>
+    request<import("./compliance").SuppressionEntry>(
+      `/api/compliance/suppressions/${id}/deactivate`,
+      { method: "POST" },
+    ),
+  reactivateSuppression: (id: string) =>
+    request<import("./compliance").SuppressionEntry>(
+      `/api/compliance/suppressions/${id}/reactivate`,
+      { method: "POST" },
+    ),
+  checkCompliance: (campaignId: string, messageId: string) =>
+    request<import("./compliance").ComplianceCheckResult>(
+      `/api/campaigns/${campaignId}/compliance/check`,
+      { method: "POST", body: JSON.stringify({ message_id: messageId }) },
+    ),
+  createTestComplianceEvent: (
+    campaignId: string,
+    body: { message_id: string; event_type: string; is_test_data: boolean },
+  ) =>
+    request<{ event_type: string; suppression: import("./compliance").SuppressionEntry }>(
+      `/api/campaigns/${campaignId}/compliance/test-events`,
+      { method: "POST", body: JSON.stringify(body) },
+    ),
+  getProviderReadiness: () =>
+    request<import("./compliance").ProviderReadinessReport>(
+      `/api/compliance/provider-readiness`,
+    ),
+  validateProviderReadiness: () =>
+    request<import("./compliance").ProviderReadinessReport>(
+      `/api/compliance/provider-readiness/validate`,
+      { method: "POST" },
+    ),
 };
 
 export const campaignStatusLabel: Record<CampaignStatus, string> = {
