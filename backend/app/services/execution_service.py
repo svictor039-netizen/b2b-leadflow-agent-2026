@@ -782,6 +782,28 @@ def _process_one_item(db: Session, run: CampaignExecutionRun, item: CampaignExec
     if item.status != ExecutionItemStatus.PENDING.value:
         return
 
+    # Stage 6: compliance before item claim — blocks item only (not whole run)
+    msg_pre = db.get(OutreachMessage, item.outreach_message_id)
+    if msg_pre is not None and msg_pre.status == OutreachMessageStatus.APPROVED.value:
+        from app.models.enums import ComplianceCheckContext
+        from app.services import compliance_service
+
+        compliance = compliance_service.check_outreach_compliance(
+            db,
+            campaign_id=run.campaign_id,
+            message=msg_pre,
+            execution_run_id=run.id,
+            check_context=ComplianceCheckContext.EXECUTION_ITEM.value,
+            persist_log=True,
+        )
+        if not compliance.allowed:
+            compliance_service.apply_message_suppression_block(db, msg_pre, compliance)
+            item.status = ExecutionItemStatus.BLOCKED.value
+            item.error_message = compliance.reason_code
+            item.finished_at = _utcnow()
+            db.commit()
+            return
+
     now = _utcnow()
     claim = db.execute(
         update(CampaignExecutionItem)

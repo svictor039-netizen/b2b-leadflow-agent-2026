@@ -172,10 +172,39 @@ API кампаний/компаний/локаций/контактов. Fronten
 
 См. [STAGE5_TEST_ORCHESTRATION.md](STAGE5_TEST_ORCHESTRATION.md)
 
-## Roadmap (будущие этапы — не в scope Stage 5)
+## Stage 6 — Compliance, Suppression & Provider Readiness
+
+**Русское название:** Этап 6 — compliance-контур, стоп-листы и подготовка к подключению email-провайдера.
+
+### Цель
+
+Защитный слой перед ограниченным живым пилотом: suppression (global/campaign), compliance gate перед Stage 4 send и Stage 5 items, audit log, Provider Readiness Report — **без** реального provider и без live mode.
+
+### Модели
+
+- `SuppressionEntry` — GLOBAL/CAMPAIGN блокировки EMAIL/DOMAIN/COMPANY/CAMPAIGN_LEAD
+- `ComplianceDecisionLog` — ALLOWED/BLOCKED/ERROR с безопасными details
+
+### API
+
+- `/api/compliance/suppressions` (+ deactivate/reactivate)
+- `/api/campaigns/{id}/compliance/check`
+- `/api/campaigns/{id}/compliance/test-events`
+- `/api/compliance/provider-readiness` (+ validate)
+
+### Safety
+
+- Только `@example.test` и `TestEmailProvider`
+- Suppression одного message блокирует item, не весь execution run
+- `SYSTEM_STOP_ALL` по-прежнему блокирует весь run / send
+- Secrets: present/missing; LIVE_NOT_READY
+- `beat_schedule` пуст
+
+См. [STAGE6_COMPLIANCE_READINESS.md](STAGE6_COMPLIANCE_READINESS.md)
+
+## Roadmap (будущие этапы — не в scope Stage 6)
 
 | Stage | Название |
 |---|---|
-| 6 | Compliance, Suppression & Provider Readiness |
 | 7 | Controlled Live Pilot |
-| 8 | Production Hardening & Deployment |
+| 8 | Production Hardening & Deployment | |

@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     )
 
     app_name: str = "B2B LeadFlow Agent"
-    app_version: str = Field(default="0.6.0-stage5", alias="APP_VERSION")
+    app_version: str = Field(default="0.7.0-stage6", alias="APP_VERSION")
     environment: str = "development"
     debug: bool = False
 
@@ -31,6 +31,14 @@ class Settings(BaseSettings):
     )
 
     system_stop_all: bool = Field(default=False, alias="SYSTEM_STOP_ALL")
+
+    # Stage 6 placeholders — real/live must stay disabled
+    real_email_provider_enabled: bool = Field(default=False, alias="REAL_EMAIL_PROVIDER_ENABLED")
+    live_outreach_enabled: bool = Field(default=False, alias="LIVE_OUTREACH_ENABLED")
+    provider_api_key: str = Field(default="", alias="PROVIDER_API_KEY")
+    provider_sender_email: str = Field(default="", alias="PROVIDER_SENDER_EMAIL")
+    provider_sender_domain: str = Field(default="", alias="PROVIDER_SENDER_DOMAIN")
+    provider_daily_limit: int = Field(default=0, alias="PROVIDER_DAILY_LIMIT")
 
     celery_broker_url: str | None = Field(default=None, alias="CELERY_BROKER_URL")
     celery_result_backend: str | None = Field(default=None, alias="CELERY_RESULT_BACKEND")

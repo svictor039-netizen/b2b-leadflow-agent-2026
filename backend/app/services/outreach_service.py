@@ -962,6 +962,33 @@ def _reserve_pending_attempt(db: Session, msg: OutreachMessage, attempt_key: str
 
 def _deliver_after_claim(db: Session, msg: OutreachMessage) -> OutreachMessage:
     """Reserve outbox → provider → SUCCESS/SENT (or FAILED). Caller already claimed SENDING."""
+    from app.models.enums import ComplianceCheckContext
+    from app.services import compliance_service
+    from app.services.suppression_normalizer import normalize_email
+
+    lead = db.get(CampaignLead, msg.campaign_lead_id)
+    try:
+        email_norm, _ = normalize_email(msg.recipient_email)
+        domain_norm = email_norm.split("@", 1)[1]
+    except AppError:
+        email_norm, domain_norm = None, None
+    lock_keys = compliance_service.message_compliance_lock_keys(
+        campaign_id=msg.campaign_id,
+        email=email_norm,
+        domain=domain_norm,
+        company_id=lead.company_id if lead else None,
+        lead_id=msg.campaign_lead_id,
+    )
+
+    with compliance_service.compliance_locks(db, lock_keys):
+        return _deliver_after_claim_locked(db, msg)
+
+
+def _deliver_after_claim_locked(db: Session, msg: OutreachMessage) -> OutreachMessage:
+    """Inner deliver path — caller must hold compliance advisory locks."""
+    from app.models.enums import ComplianceCheckContext
+    from app.services import compliance_service
+
     attempt_key = send_idempotency_key(msg.id)
     existing = _get_attempt_by_key(db, attempt_key)
     if existing is not None:
@@ -990,7 +1017,6 @@ def _deliver_after_claim(db: Session, msg: OutreachMessage) -> OutreachMessage:
 
     provider = TestEmailProvider()
     assert provider.name == ALLOWED_OUTREACH_PROVIDER
-    now = attempt.attempted_at or _utcnow()
 
     try:
         # Re-check STOP immediately before provider (kill switch flip race).
@@ -1011,6 +1037,28 @@ def _deliver_after_claim(db: Session, msg: OutreachMessage) -> OutreachMessage:
             db.commit()
             db.refresh(msg)
             logger.info("Outreach send blocked after claim message_id=%s", msg.id)
+            return msg
+
+        # Final compliance gate under advisory locks (closes TOCTOU vs suppression).
+        final = compliance_service.check_outreach_compliance(
+            db,
+            campaign_id=msg.campaign_id,
+            message=msg,
+            check_context=ComplianceCheckContext.EXPLICIT_SEND.value,
+            persist_log=True,
+        )
+        if not final.allowed:
+            fail_time = _utcnow()
+            attempt.status = SendAttemptStatus.FAILED.value
+            attempt.completed_at = fail_time
+            attempt.safe_error_message = final.reason_code
+            db.commit()
+            compliance_service.apply_message_suppression_block(db, msg, final)
+            db.refresh(msg)
+            logger.info(
+                "Outreach send blocked by compliance after claim message_id=%s",
+                msg.id,
+            )
             return msg
 
         result = provider.send(
@@ -1097,46 +1145,92 @@ def _send_claimed_message(db: Session, msg: OutreachMessage) -> OutreachMessage:
     if lead is None or lead.review_decision != ReviewDecision.APPROVED.value or not lead.is_test_data:
         raise AppError("Lead not eligible for send", status_code=409, code="lead_not_eligible")
 
-    # SYSTEM_STOP_ALL immediately before atomic claim
-    if is_system_stopped():
-        now = _utcnow()
-        result = db.execute(
+    # Stage 6: advisory locks bind suppression mutations to this send until provider.
+    from app.models.enums import ComplianceCheckContext
+    from app.services import compliance_service
+    from app.services.suppression_normalizer import normalize_email
+
+    try:
+        email_norm, _ = normalize_email(msg.recipient_email)
+        domain_norm = email_norm.split("@", 1)[1]
+    except AppError:
+        email_norm, domain_norm = None, None
+    lock_keys = compliance_service.message_compliance_lock_keys(
+        campaign_id=msg.campaign_id,
+        email=email_norm,
+        domain=domain_norm,
+        company_id=lead.company_id,
+        lead_id=msg.campaign_lead_id,
+    )
+
+    with compliance_service.compliance_locks(db, lock_keys):
+        # SYSTEM_STOP_ALL has priority over compliance ALLOWED
+        if is_system_stopped():
+            now = _utcnow()
+            result = db.execute(
+                update(OutreachMessage)
+                .where(
+                    OutreachMessage.id == msg.id,
+                    OutreachMessage.status == OutreachMessageStatus.APPROVED.value,
+                )
+                .values(
+                    status=OutreachMessageStatus.BLOCKED.value,
+                    blocked_at=now,
+                    error_message="SYSTEM_STOP_ALL active",
+                )
+            )
+            db.commit()
+            db.refresh(msg)
+            if result.rowcount == 0:
+                return msg
+            logger.info("Outreach send blocked by SYSTEM_STOP_ALL message_id=%s", msg.id)
+            return msg
+
+        compliance = compliance_service.check_outreach_compliance(
+            db,
+            campaign_id=msg.campaign_id,
+            message=msg,
+            check_context=ComplianceCheckContext.EXPLICIT_SEND.value,
+            persist_log=True,
+        )
+        if not compliance.allowed:
+            return compliance_service.apply_message_suppression_block(db, msg, compliance)
+
+        claim = db.execute(
             update(OutreachMessage)
             .where(
                 OutreachMessage.id == msg.id,
                 OutreachMessage.status == OutreachMessageStatus.APPROVED.value,
             )
-            .values(
-                status=OutreachMessageStatus.BLOCKED.value,
-                blocked_at=now,
-                error_message="SYSTEM_STOP_ALL active",
-            )
+            .values(status=OutreachMessageStatus.SENDING.value)
         )
         db.commit()
-        db.refresh(msg)
-        if result.rowcount == 0:
-            return msg
-        logger.info("Outreach send blocked by SYSTEM_STOP_ALL message_id=%s", msg.id)
-        return msg
+        if claim.rowcount == 0:
+            db.refresh(msg)
+            if msg.status == OutreachMessageStatus.SENT.value:
+                return msg
+            if msg.status == OutreachMessageStatus.SENDING.value:
+                return _recover_sending(db, msg)
+            if msg.status == OutreachMessageStatus.BLOCKED.value:
+                return msg
+            raise AppError(
+                "Could not claim message for sending",
+                status_code=409,
+                code="claim_failed",
+            )
 
-    claim = db.execute(
-        update(OutreachMessage)
-        .where(
-            OutreachMessage.id == msg.id,
-            OutreachMessage.status == OutreachMessageStatus.APPROVED.value,
+        db.refresh(msg)
+
+        # Post-claim re-check before outbox/provider (defense in depth)
+        post = compliance_service.check_outreach_compliance(
+            db,
+            campaign_id=msg.campaign_id,
+            message=msg,
+            check_context=ComplianceCheckContext.EXPLICIT_SEND.value,
+            persist_log=True,
         )
-        .values(status=OutreachMessageStatus.SENDING.value)
-    )
-    db.commit()
-    if claim.rowcount == 0:
-        db.refresh(msg)
-        if msg.status == OutreachMessageStatus.SENT.value:
-            return msg
-        if msg.status == OutreachMessageStatus.SENDING.value:
-            return _recover_sending(db, msg)
-        if msg.status == OutreachMessageStatus.BLOCKED.value:
-            return msg
-        raise AppError("Could not claim message for sending", status_code=409, code="claim_failed")
+        if not post.allowed:
+            return compliance_service.apply_message_suppression_block(db, msg, post)
 
-    db.refresh(msg)
-    return _deliver_after_claim(db, msg)
+        # Already holding compliance locks — avoid nested acquire here.
+        return _deliver_after_claim_locked(db, msg)

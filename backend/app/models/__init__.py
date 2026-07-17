@@ -1,6 +1,7 @@
 from app.models.campaign import Campaign
 from app.models.campaign_lead import CampaignLead
 from app.models.company import Company, CompanyLocation
+from app.models.compliance_log import ComplianceDecisionLog
 from app.models.contact import Contact
 from app.models.data_source import CompanySourceRecord, DataSource
 from app.models.execution_item import CampaignExecutionItem
@@ -12,6 +13,7 @@ from app.models.outreach_template import OutreachTemplate
 from app.models.qualification_run import QualificationRun
 from app.models.research_run import ResearchRun
 from app.models.send_attempt import SendAttempt
+from app.models.suppression_entry import SuppressionEntry
 from app.models.enums import (
     ALLOWED_OUTREACH_PROVIDER,
     ALLOWED_RESEARCH_ADAPTERS,
@@ -74,6 +76,7 @@ __all__ = [
     "CompanyLocation",
     "CompanySourceRecord",
     "CompanyStatus",
+    "ComplianceDecisionLog",
     "ConsentStatus",
     "Contact",
     "ContactType",
@@ -101,6 +104,7 @@ __all__ = [
     "SendAttempt",
     "SendAttemptStatus",
     "SendingMode",
+    "SuppressionEntry",
     "USER_EDITABLE_CAMPAIGN_STATUSES",
     "VerificationStatus",
 ]
