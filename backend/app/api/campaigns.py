@@ -12,7 +12,12 @@ from app.schemas.campaign import (
     CampaignRead,
     CampaignUpdate,
 )
-from app.services import campaign_service
+from app.schemas.qualification import (
+    LeadReviewRequest,
+    QualificationLeadListResponse,
+    QualificationLeadRead,
+)
+from app.services import campaign_service, qualification_service
 
 router = APIRouter(prefix="/campaigns", tags=["campaigns"])
 
@@ -86,3 +91,39 @@ def detach_company(
 ) -> Response:
     campaign_service.detach_company_from_campaign(db, campaign_id, company_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.get("/{campaign_id}/leads", response_model=QualificationLeadListResponse)
+def list_campaign_leads(
+    campaign_id: UUID,
+    qualification_status: str | None = Query(None, max_length=32),
+    review_decision: str | None = Query(None, max_length=32),
+    min_score: int | None = Query(None, ge=0, le=100),
+    max_score: int | None = Query(None, ge=0, le=100),
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+) -> QualificationLeadListResponse:
+    return qualification_service.list_campaign_leads(
+        db,
+        campaign_id,
+        qualification_status=qualification_status,
+        review_decision=review_decision,
+        min_score=min_score,
+        max_score=max_score,
+        limit=limit,
+        offset=offset,
+    )
+
+
+@router.post(
+    "/{campaign_id}/leads/{lead_id}/review",
+    response_model=QualificationLeadRead,
+)
+def review_campaign_lead(
+    campaign_id: UUID,
+    lead_id: UUID,
+    payload: LeadReviewRequest,
+    db: Session = Depends(get_db),
+) -> QualificationLeadRead:
+    return qualification_service.review_lead(db, campaign_id, lead_id, payload)

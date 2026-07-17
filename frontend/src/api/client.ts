@@ -199,6 +199,30 @@ export const api = {
     }),
   deleteContact: (contactId: string) =>
     request<void>(`/api/contacts/${contactId}`, { method: "DELETE" }),
+
+  listResearchRuns: (params: URLSearchParams) =>
+    request<import("./qualification").ResearchRunSummary[]>(`/api/research/runs?${params}`),
+  createResearchRun: (body: unknown) =>
+    request<import("./qualification").ResearchRunSummary>("/api/research/runs", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  startQualification: (body: unknown) =>
+    request<import("./qualification").QualificationRun>("/api/qualification/runs", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  getQualificationRun: (id: string) =>
+    request<import("./qualification").QualificationRun>(`/api/qualification/runs/${id}`),
+  listCampaignLeads: (campaignId: string, params: URLSearchParams) =>
+    request<import("./qualification").QualificationLeadListResponse>(
+      `/api/campaigns/${campaignId}/leads?${params}`,
+    ),
+  reviewLead: (campaignId: string, leadId: string, body: unknown) =>
+    request<import("./qualification").QualificationLead>(
+      `/api/campaigns/${campaignId}/leads/${leadId}/review`,
+      { method: "POST", body: JSON.stringify(body) },
+    ),
 };
 
 export const campaignStatusLabel: Record<CampaignStatus, string> = {

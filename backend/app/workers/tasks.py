@@ -58,3 +58,35 @@ def run_research_task(self, run_id: str) -> dict:
         return {"run_id": run_id, "status": "FAILED", "error": exc.code}
     finally:
         db.close()
+
+
+@celery_app.task(
+    name="app.workers.tasks.run_qualification_task",
+    bind=True,
+    max_retries=0,
+)
+def run_qualification_task(self, run_id: str) -> dict:
+    """Execute an existing qualification run by id. Redelivery is idempotent."""
+    from uuid import UUID
+
+    from app.core.database import SessionLocal
+    from app.core.exceptions import AppError
+    from app.services.qualification_service import execute_qualification_run
+
+    if is_system_stopped():
+        pass
+
+    db = SessionLocal()
+    try:
+        result = execute_qualification_run(db, UUID(run_id))
+        return {
+            "run_id": str(result.id),
+            "status": result.status.value,
+            "scored_count": result.scored_count,
+            "created_leads_count": result.created_leads_count,
+        }
+    except AppError as exc:
+        logger.warning("Qualification task app error: %s", exc.message)
+        return {"run_id": run_id, "status": "FAILED", "error": exc.code}
+    finally:
+        db.close()

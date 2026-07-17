@@ -1,7 +1,8 @@
 # B2B LeadFlow Agent 2026
 
-РџСЂРѕРµРєС‚ VCd03 вЂ” СЌС‚Р°РїС‹ 0вЂ“1. B2B lead generation: РєР°СЂРєР°СЃ Docker + РјРѕРґРµР»СЊ РєР°РјРїР°РЅРёР№/РєРѕРјРїР°РЅРёР№ РІ PostgreSQL.
-Р РµР°Р»СЊРЅС‹Р№ РїРѕРёСЃРє РєРѕРјРїР°РЅРёР№ Рё РѕС‚РїСЂР°РІРєР° email **РµС‰С‘ РЅРµ СЂРµР°Р»РёР·РѕРІР°РЅС‹**.
+Проект VCd03 — этапы 0–3. B2B lead generation: Docker, кампании/компании, safe research (Stage 2),
+квалификация и детерминированный scoring лидов (Stage 3).
+Реальная отправка email и outreach **не реализованы** (Stage 4).
 
 ## РЎС‚РµРє
 
@@ -36,7 +37,9 @@ docker compose exec backend alembic heads
 docker compose exec backend alembic upgrade head
 ```
 
-Р РµРІРёР·РёРё: `0001_stage0_baseline` в†’ `0002_campaigns_companies`.
+Ревизии: `0001` → `0002_campaigns_companies` → `0003_research_runs` → `0004_qualification`.
+
+Документы этапов: [docs/VCd03_SPEC.md](docs/VCd03_SPEC.md), [docs/STAGE2_RESEARCH.md](docs/STAGE2_RESEARCH.md), [docs/STAGE3_QUALIFICATION.md](docs/STAGE3_QUALIFICATION.md).
 
 ## РџСЂР°РІРёР»Р° РєР°РјРїР°РЅРёР№ (СЌС‚Р°Рї 1)
 
