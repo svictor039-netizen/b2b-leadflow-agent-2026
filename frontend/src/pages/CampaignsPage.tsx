@@ -11,6 +11,8 @@ import {
   sendingModeLabel,
   SendingMode,
 } from "../api/client";
+import { QualificationPanel } from "../components/QualificationPanel";
+import { TestModeBanner } from "../components/TestModeBanner";
 
 interface CampaignFormValues {
   name: string;
@@ -313,6 +315,7 @@ export function CampaignsPage() {
 
       {selectedId && detailQuery.data && (
         <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-4">
+          <TestModeBanner />
           <div className="flex items-start justify-between gap-3">
             <div>
               <h3 className="text-lg font-semibold">{detailQuery.data.name}</h3>
@@ -397,6 +400,12 @@ export function CampaignsPage() {
               </button>
             </div>
           </form>
+
+          <QualificationPanel
+            campaignId={selectedId}
+            businessType={detailQuery.data.business_type}
+            region={detailQuery.data.region}
+          />
 
           <div>
             <h4 className="mb-2 font-semibold">Компании в кампании</h4>

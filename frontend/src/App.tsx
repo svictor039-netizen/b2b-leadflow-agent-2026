@@ -34,7 +34,9 @@ function DashboardHome() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-slate-900">Dashboard</h2>
-        <p className="text-sm text-slate-500">B2B LeadFlow Agent — этап 1 (кампании и компании)</p>
+        <p className="text-sm text-slate-500">
+          B2B LeadFlow Agent — Stage 3 (квалификация лидов, без email)
+        </p>
       </div>
       <TestModeBanner />
       <HealthStatus />

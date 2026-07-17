@@ -454,6 +454,18 @@ def get_research_run(db: Session, run_id: UUID) -> ResearchRunRead:
     return _to_read(run)
 
 
+def list_research_runs(
+    db: Session,
+    *,
+    status: str | None = None,
+    limit: int = 20,
+) -> list[ResearchRunRead]:
+    stmt = select(ResearchRun).order_by(ResearchRun.created_at.desc()).limit(limit)
+    if status:
+        stmt = stmt.where(ResearchRun.status == status)
+    return [_to_read(run) for run in db.scalars(stmt).all()]
+
+
 def start_research(db: Session, data: ResearchRunCreate) -> ResearchRunRead:
     run = create_research_run(db, data)
     if data.async_mode:

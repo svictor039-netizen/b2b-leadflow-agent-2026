@@ -101,3 +101,35 @@ class ResearchItemOutcome(StrEnum):
 ALLOWED_RESEARCH_ADAPTERS = frozenset({"test_source"})
 MAX_RESEARCH_LIMIT = 30
 MAX_QUERY_LENGTH = 200
+
+
+class QualificationRunStatus(StrEnum):
+    PENDING = "PENDING"
+    RUNNING = "RUNNING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    BLOCKED = "BLOCKED"
+
+
+class QualificationStatus(StrEnum):
+    QUALIFIED = "QUALIFIED"
+    REVIEW = "REVIEW"
+    DISQUALIFIED = "DISQUALIFIED"
+
+
+class ReviewDecision(StrEnum):
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+
+
+class QualificationItemOutcome(StrEnum):
+    CREATED = "created"
+    MATCHED_EXISTING = "matched_existing"
+    UPDATED = "updated"
+    SKIPPED = "skipped"
+    CONFLICT = "conflict"
+
+
+SCORING_VERSION = "stage3-v1"
+MAX_REVIEW_NOTE_LENGTH = 500

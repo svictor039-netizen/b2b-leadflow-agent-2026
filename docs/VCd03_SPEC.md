@@ -42,3 +42,65 @@ API кампаний/компаний/локаций/контактов. Fronten
 - См. [STAGE2_RESEARCH.md](STAGE2_RESEARCH.md)
 
 **Не входит:** реальный поиск, scraping, SMTP/IMAP, outreach, сбор реальных email.
+
+## Stage 3 — Safe Lead Qualification & Deterministic Scoring
+
+**Русское название:** Этап 3 — безопасная квалификация и детерминированная оценка лидов.
+
+### Цель
+
+Связать завершённый `ResearchRun` с `Campaign`, создать/найти `CampaignLead` для каждой подходящей компании из provenance Stage 2 и присвоить детерминированный score 0–100 с объяснимыми reasons — без LLM и без email.
+
+### Входные данные
+
+- `campaign_id` — существующая кампания
+- `research_run_id` — `ResearchRun` со статусом `COMPLETED` и `is_test_data=true`
+- Компании только из `CompanySourceRecord` данного research run
+
+### Модели
+
+- `QualificationRun` — запуск квалификации (status, counters, scoring_version)
+- Расширение `CampaignLead` — score, qualification_status, review_decision, provenance
+- `LeadScoreSnapshot` — снимок score/reasons/input на пару run+lead
+
+### API
+
+- `POST /api/qualification/runs`
+- `GET /api/qualification/runs/{run_id}`
+- `GET /api/campaigns/{campaign_id}/leads`
+- `POST /api/campaigns/{campaign_id}/leads/{lead_id}/review`
+
+### Scoring rules (`stage3-v1`)
+
+Детерминированный engine без LLM. Баллы за domain / industry / location / profile completeness / provenance; штрафы за conflict / missing name / invalid domain. Clamp 0–100:
+
+| Score | Status |
+|---|---|
+| 70–100 | QUALIFIED |
+| 40–69 | REVIEW |
+| 0–39 | DISQUALIFIED |
+
+Ручное решение отдельно: `PENDING` / `APPROVED` / `REJECTED` (не меняет score, не шлёт email).
+
+### Safety
+
+- Только test data и сохранённый provenance Stage 2
+- Атомарный claim `PENDING→RUNNING` (один worker); mid-run failure = all-or-nothing rollback + `FAILED`
+- `SYSTEM_STOP_ALL` блокирует автоматический qualification → `BLOCKED` + `finished_at` (ручной review разрешён)
+- Нет вызовов TestEmailProvider / SMTP / scraping
+- Sanitize snapshots; secrets/PII не в API и логах
+- Celery redelivery идемпотентна; scheduler не автозапускает qualification
+
+### Критерии готовности
+
+- Unique `(campaign_id, company_id)` и `(qualification_run_id, campaign_lead_id)`
+- Идемпотентный повторный qualification
+- Score reasons + snapshots сохранены
+- Manual review без email
+- Тесты + Docker smoke + docs
+
+### Не входит в Stage 3 (Stage 4)
+
+Шаблоны писем, генерация писем, email sequences, отправка (в т.ч. TestEmailProvider), реальные провайдеры, массовый outreach, scheduler рассылок.
+
+См. [STAGE3_QUALIFICATION.md](STAGE3_QUALIFICATION.md)
