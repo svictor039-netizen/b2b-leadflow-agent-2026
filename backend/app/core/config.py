@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     )
 
     app_name: str = "B2B LeadFlow Agent"
-    app_version: str = Field(default="0.7.0-stage6", alias="APP_VERSION")
+    app_version: str = Field(default="0.8.0-stage7a", alias="APP_VERSION")
     environment: str = "development"
     debug: bool = False
 
@@ -39,6 +39,16 @@ class Settings(BaseSettings):
     provider_sender_email: str = Field(default="", alias="PROVIDER_SENDER_EMAIL")
     provider_sender_domain: str = Field(default="", alias="PROVIDER_SENDER_DOMAIN")
     provider_daily_limit: int = Field(default=0, alias="PROVIDER_DAILY_LIMIT")
+
+    # Stage 7A — controlled live pilot (fail-closed defaults)
+    live_pilot_database_gate: bool = Field(default=False, alias="LIVE_PILOT_DATABASE_GATE")
+    live_provider_name: str = Field(default="", alias="LIVE_PROVIDER_NAME")
+    live_provider_api_key: str = Field(default="", alias="LIVE_PROVIDER_API_KEY")
+    live_sender_email: str = Field(default="", alias="LIVE_SENDER_EMAIL")
+    live_sender_domain: str = Field(default="", alias="LIVE_SENDER_DOMAIN")
+    live_daily_limit: int = Field(default=0, alias="LIVE_DAILY_LIMIT")
+    live_rate_limit_per_minute: int = Field(default=0, alias="LIVE_RATE_LIMIT_PER_MINUTE")
+    live_pilot_max_recipients: int = Field(default=1, alias="LIVE_PILOT_MAX_RECIPIENTS")
 
     celery_broker_url: str | None = Field(default=None, alias="CELERY_BROKER_URL")
     celery_result_backend: str | None = Field(default=None, alias="CELERY_RESULT_BACKEND")

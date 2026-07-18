@@ -75,6 +75,11 @@ def test_alembic_upgrade_head_and_tables(migration_url: str) -> None:
         "campaign_execution_items",
         "suppression_entries",
         "compliance_decision_logs",
+        "live_pilots",
+        "live_pilot_recipients",
+        "live_pilot_approvals",
+        "live_pilot_events",
+        "live_pilot_allowlist_entries",
         "alembic_version",
     }
     assert expected.issubset(tables)
@@ -111,6 +116,12 @@ def test_alembic_upgrade_head_and_tables(migration_url: str) -> None:
         u["name"] for u in insp.get_unique_constraints("compliance_decision_logs")
     }
     assert "uq_compliance_decision_logs_idempotency" in log_uniques
+    pilot_uniques = {u["name"] for u in insp.get_unique_constraints("live_pilots")}
+    assert "uq_live_pilots_idempotency" in pilot_uniques
+    pilot_indexes = {i["name"]: i for i in insp.get_indexes("live_pilots")}
+    assert "uq_live_pilots_active_campaign" in pilot_indexes
+    allow_indexes = {i["name"]: i for i in insp.get_indexes("live_pilot_allowlist_entries")}
+    assert "uq_live_pilot_allowlist_active" in allow_indexes
     indexes = {i["name"]: i for i in insp.get_indexes("companies")}
     assert "uq_companies_domain_not_null" in indexes
     assert indexes["uq_companies_domain_not_null"]["unique"] is True
@@ -118,11 +129,12 @@ def test_alembic_upgrade_head_and_tables(migration_url: str) -> None:
     # Idempotent upgrade
     command.upgrade(cfg, "head")
 
-    # One-step downgrade removes Stage 6 only
+    # One-step downgrade removes Stage 7A only
     command.downgrade(cfg, "-1")
     tables_after = set(inspect(engine).get_table_names())
-    assert "suppression_entries" not in tables_after
-    assert "compliance_decision_logs" not in tables_after
+    assert "live_pilots" not in tables_after
+    assert "suppression_entries" in tables_after
+    assert "compliance_decision_logs" in tables_after
     assert "campaign_execution_runs" in tables_after
     assert "outreach_messages" in tables_after
     assert "send_attempts" in tables_after
@@ -131,7 +143,7 @@ def test_alembic_upgrade_head_and_tables(migration_url: str) -> None:
     assert "campaigns" in tables_after
 
     command.upgrade(cfg, "head")
-    assert "suppression_entries" in set(inspect(engine).get_table_names())
+    assert "live_pilots" in set(inspect(engine).get_table_names())
     engine.dispose()
 
 
@@ -152,5 +164,5 @@ def test_alembic_stage1_then_head_preserves_data(migration_url: str) -> None:
         name = conn.execute(text("SELECT name FROM campaigns WHERE name = 'mig-keep'")).scalar()
         assert name == "mig-keep"
         version = conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
-        assert version == "0007_compliance_ready"
+        assert version == "0008_controlled_live_pilot"
     engine.dispose()

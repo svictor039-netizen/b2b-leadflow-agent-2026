@@ -354,6 +354,53 @@ export const api = {
       `/api/compliance/provider-readiness/validate`,
       { method: "POST" },
     ),
+
+  createLivePilot: (body: Record<string, unknown>) =>
+    request<import("./livePilot").LivePilot>(`/api/live-pilots`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  listLivePilots: (campaignId: string) =>
+    request<import("./livePilot").LivePilotListResponse>(
+      `/api/live-pilots?campaign_id=${campaignId}&limit=50&offset=0`,
+    ),
+  validateLivePilot: (pilotId: string) =>
+    request<import("./livePilot").LivePilotValidation>(
+      `/api/live-pilots/${pilotId}/validate`,
+      { method: "POST" },
+    ),
+  getLivePilotReadiness: (pilotId: string) =>
+    request<import("./livePilot").LivePilotValidation>(
+      `/api/live-pilots/${pilotId}/readiness`,
+    ),
+  approveLivePilot: (pilotId: string, confirmationToken?: string) =>
+    request<import("./livePilot").LivePilotApproval>(
+      `/api/live-pilots/${pilotId}/approve`,
+      {
+        method: "POST",
+        body: JSON.stringify(
+          confirmationToken ? { confirmation_token: confirmationToken } : {},
+        ),
+      },
+    ),
+  dryRunLivePilot: (pilotId: string, idempotencyKey: string) =>
+    request<import("./livePilot").LivePilotDryRunResult>(
+      `/api/live-pilots/${pilotId}/dry-run`,
+      {
+        method: "POST",
+        body: JSON.stringify({ idempotency_key: idempotencyKey }),
+      },
+    ),
+  cancelLivePilot: (pilotId: string) =>
+    request<import("./livePilot").LivePilot>(
+      `/api/live-pilots/${pilotId}/cancel`,
+      { method: "POST" },
+    ),
+  addLivePilotRecipient: (pilotId: string, body: Record<string, unknown>) =>
+    request<import("./livePilot").LivePilotRecipient>(
+      `/api/live-pilots/${pilotId}/recipients`,
+      { method: "POST", body: JSON.stringify(body) },
+    ),
 };
 
 export const campaignStatusLabel: Record<CampaignStatus, string> = {

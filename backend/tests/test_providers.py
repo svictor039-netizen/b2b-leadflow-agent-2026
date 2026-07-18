@@ -3,6 +3,7 @@ import os
 import pytest
 
 from app.providers.base import EmailMessage
+from app.providers.email_disabled_live import LIVE_PROVIDER_NOT_CONFIGURED, DisabledLiveEmailProvider
 from app.providers.email_test import TestEmailProvider
 from app.providers.source_test import TestSourceAdapter
 from app.security.stop_all import SystemStopAllError
@@ -41,6 +42,23 @@ def test_test_source_adapter_respects_limit() -> None:
     adapter = TestSourceAdapter()
     companies = adapter.search("anything", "anywhere", limit=2)
     assert len(companies) <= 2
+
+
+def test_disabled_live_provider_never_sends() -> None:
+    provider = DisabledLiveEmailProvider()
+    assert provider.supports_live_delivery is False
+    ok, detail = provider.validate_configuration()
+    assert ok is False
+    assert detail == LIVE_PROVIDER_NOT_CONFIGURED
+    result = provider.send(
+        EmailMessage(
+            to_address="test@example.test",
+            subject="Hi",
+            body="Body",
+        )
+    )
+    assert result.success is False
+    assert result.detail == LIVE_PROVIDER_NOT_CONFIGURED
 
 
 def test_system_stop_all_blocks_email() -> None:

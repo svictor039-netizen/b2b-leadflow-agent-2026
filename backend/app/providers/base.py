@@ -28,9 +28,33 @@ class EmailProvider(ABC):
     def name(self) -> str:
         pass
 
+    @property
+    def provider_name(self) -> str:
+        return self.name
+
+    @property
+    def supports_live_delivery(self) -> bool:
+        return False
+
+    @property
+    def supports_idempotency(self) -> bool:
+        return True
+
+    @property
+    def supports_delivery_events(self) -> bool:
+        return False
+
     @abstractmethod
     def send(self, message: EmailMessage) -> EmailSendResult:
         pass
+
+    def validate_configuration(self) -> tuple[bool, str]:
+        """Local configuration check — no network on Stage 7A."""
+        return True, "ok"
+
+    def check_readiness(self) -> tuple[bool, str]:
+        """Health/readiness without network calls on Stage 7A."""
+        return self.validate_configuration()
 
 
 @dataclass

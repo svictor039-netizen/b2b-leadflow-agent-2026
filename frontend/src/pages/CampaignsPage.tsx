@@ -15,6 +15,7 @@ import { QualificationPanel } from "../components/QualificationPanel";
 import { OutreachPanel } from "../components/OutreachPanel";
 import { CompliancePanel } from "../components/CompliancePanel";
 import { ExecutionPanel } from "../components/ExecutionPanel";
+import { LivePilotPanel } from "../components/LivePilotPanel";
 import { TestModeBanner } from "../components/TestModeBanner";
 
 interface CampaignFormValues {
@@ -415,6 +416,8 @@ export function CampaignsPage() {
           <ExecutionPanel campaignId={selectedId} />
 
           <CompliancePanel campaignId={selectedId} />
+
+          <LivePilotPanel campaignId={selectedId} />
 
           <div>
             <h4 className="mb-2 font-semibold">Компании в кампании</h4>
