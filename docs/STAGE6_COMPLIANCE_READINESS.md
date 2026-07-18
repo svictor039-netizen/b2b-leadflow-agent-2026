@@ -118,8 +118,10 @@ Send / execution remain blocked by Stage 4/5. STOP is checked with cache clear a
 ## Roadmap boundary
 
 - **Stage 6** — this document (no live provider)
-- **Stage 7** — Controlled Live Pilot (not implemented)
-- **Stage 8** — Production Hardening (not implemented)
+- **Stage 7A** — Controlled Live Pilot infrastructure (**done**; no real sends)
+- **Stage 7B** — Owner-selected provider + canary (**pending / optional**)
+- **Stage 8** — Production Hardening (**done**)
+- **Stage 9** — does not exist
 
 ## Что не входит в Stage 6
 

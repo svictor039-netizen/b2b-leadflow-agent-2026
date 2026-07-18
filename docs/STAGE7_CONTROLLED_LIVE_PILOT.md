@@ -178,10 +178,10 @@ LIVE_PILOT_MAX_RECIPIENTS=1
 
 Stage 7A does not enable any live flags. Missing live config does not break test mode.
 
-## Stage 7B — Owner-selected provider canary (not in scope now)
+## Stage 7B — Owner-selected provider canary (pending / optional)
 
-Owner provides: provider choice, verified domain, sender email, pilot recipient, limits, legal basis, footer. Secrets stored outside git. One manual canary send after all gates pass.
+**Not executed in this project delivery.** Owner may later provide: provider choice, verified domain, sender email, pilot recipient, limits, legal basis, footer. Secrets stored outside git. One manual canary send only after all gates pass.
 
-## Stage 8 — Production hardening (future)
+## Stage 8 — Production hardening
 
-Deployment, monitoring, rotation, scaling — separate stage.
+**Done** (independent of Stage 7B). See [STAGE8_PRODUCTION_HARDENING_DEPLOYMENT.md](STAGE8_PRODUCTION_HARDENING_DEPLOYMENT.md). No Stage 9.
