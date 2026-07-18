@@ -226,7 +226,7 @@ export function OutreachPanel({ campaignId }: { campaignId: string }) {
             ))}
           </ul>
 
-          <h4 className="pt-2 font-medium">APPROVED leads (Stage 3)</h4>
+          <h4 className="pt-2 font-medium">APPROVED leads</h4>
           {leadOptions.length === 0 && (
             <p className="text-sm text-slate-500">Нет одобренных лидов.</p>
           )}

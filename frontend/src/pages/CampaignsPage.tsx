@@ -160,7 +160,8 @@ export function CampaignsPage() {
         <div>
           <h2 className="text-2xl font-bold text-slate-900">Кампании</h2>
           <p className="text-sm text-slate-500">
-            До 30 компаний, до 3 писем на лид. Реальный поиск и email — на следующих этапах.
+            Квалификация, outreach-последовательности, compliance, dry-run и контролируемый live
+            pilot. Реальная отправка отключена.
           </p>
         </div>
         <button

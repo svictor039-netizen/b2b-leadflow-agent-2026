@@ -44,7 +44,8 @@ export function Layout({ active, onNavigate, children }: LayoutProps) {
       >
         <div className="border-b border-slate-200 px-6 py-5">
           <h1 className="text-lg font-bold text-brand-700">LeadFlow Agent</h1>
-          <p className="text-xs text-slate-500">B2B · VCd03 · Stage 0</p>
+          <p className="text-xs text-slate-500">B2B · VCd03 · Stages 0–8</p>
+          <p className="text-xs text-slate-400">Safe demo · Stage 7B pending</p>
         </div>
         <nav className="space-y-1 p-4">
           {NAV_ITEMS.map((item) => (
