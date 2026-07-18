@@ -228,9 +228,22 @@ API кампаний/компаний/локаций/контактов. Fronten
 
 См. [STAGE7_CONTROLLED_LIVE_PILOT.md](STAGE7_CONTROLLED_LIVE_PILOT.md), [STAGE7_PROVIDER_SELECTION.md](STAGE7_PROVIDER_SELECTION.md)
 
-## Roadmap (будущие этапы — не в scope Stage 7A)
+## Stage 8 — Production Hardening & Deployment
 
-| Stage | Название |
-|---|---|
-| 7B | Owner-selected provider + one manual canary |
-| 8 | Production Hardening & Deployment |
+**Русское название:** Производственное усиление и готовность к развёртыванию.
+
+Строгая production-конфигурация, liveness/readiness/metrics, structured logging, hardened Docker Compose + reverse proxy, backup/restore, CI, deployment runbooks — **без** обязательного VPS deploy и **без** реального email-провайдера.
+
+См. [STAGE8_PRODUCTION_HARDENING_DEPLOYMENT.md](STAGE8_PRODUCTION_HARDENING_DEPLOYMENT.md), [DEPLOYMENT.md](../DEPLOYMENT.md).
+
+## Статус roadmap (закрытие проекта)
+
+| Stage | Название | Статус |
+|---|---|---|
+| 0–6 | Foundation → Compliance | **Done** |
+| 7A | Controlled Live Pilot (provider-neutral) | **Done** |
+| 7B | Owner-selected provider + one manual canary | **Pending / optional** — намеренно не выполнен |
+| 8 | Production Hardening & Deployment | **Done** |
+| 9 | — | **Не существует** |
+
+Итоговый отчёт: [HOMEWORK_FINAL_REPORT.md](../HOMEWORK_FINAL_REPORT.md).

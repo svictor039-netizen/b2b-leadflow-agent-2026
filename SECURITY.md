@@ -1,8 +1,10 @@
 # Security Policy — B2B LeadFlow Agent
 
-## Stage 0 posture
+## Current posture (Stages 0–8, safe demo)
 
-Этап 0 — **только тестовый режим**. Реальная холодная рассылка, SMTP, IMAP и scraping **не реализованы и запрещены**.
+Система работает в **безопасном demo / production-like** режиме. Реальная холодная рассылка, SMTP/IMAP live credentials, Stage 7B canary и реальный VPS deploy **не активированы** в рамках сдачи. Stage 9 не существует.
+
+Исторически Stage 0 зафиксировал тестовый baseline; ниже — актуальные правила для всего roadmap.
 
 ## Secrets
 

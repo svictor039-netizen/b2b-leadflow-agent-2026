@@ -1,19 +1,29 @@
 # B2B LeadFlow Agent 2026
 
-Проект VCd03 — этапы 0–7A. B2B lead generation: Docker, кампании/компании, safe research (Stage 2),
-квалификация (Stage 3), TestEmailProvider outreach (Stage 4), тестовый orchestration (Stage 5),
-compliance / suppression / provider readiness (Stage 6), controlled live pilot infrastructure (Stage 7A).
-Реальная рассылка **не реализована** — live delivery disabled.
+Проект VCd03 «Создание автономного агента» — безопасный B2B leadflow:
 
-## РЎС‚РµРє
+- Stage 0–6: foundation → research → qualification → test outreach → orchestration → compliance
+- **Stage 7A:** Controlled Live Pilot infrastructure (без реальной отправки)
+- **Stage 7B:** Owner-selected provider + one manual canary — **optional / pending**, не выполнен
+- **Stage 8:** Production Hardening & Deployment (без обязательного VPS deploy)
 
-| РЎР»РѕР№ | РўРµС…РЅРѕР»РѕРіРёРё |
-|---|---|
+**Safe demo mode:** live provider disabled, реальные письма и реальный VPS deploy не выполнялись.
+
+**Stage 9 не существует.**
+
+Итоговый отчёт для сдачи: [HOMEWORK_FINAL_REPORT.md](HOMEWORK_FINAL_REPORT.md)
+
+Чеклист демо: [docs/FINAL_DEMO_CHECKLIST.md](docs/FINAL_DEMO_CHECKLIST.md)
+
+## Стек
+
+| Слой | Технологии |
+|------|------------|
 | Backend | Python 3.11, FastAPI, Pydantic v2, SQLAlchemy 2.0, Alembic, Celery |
 | Frontend | React 18, Vite 6, TypeScript, Tailwind CSS, TanStack Query, React Hook Form |
-| РРЅС„СЂР° | Docker Compose, PostgreSQL 16, Redis 7 |
+| Инфра | Docker Compose, PostgreSQL 16, Redis 7, nginx (prod overlay), GitHub Actions |
 
-## Р‘С‹СЃС‚СЂС‹Р№ СЃС‚Р°СЂС‚
+## Быстрый старт (safe demo)
 
 ```bash
 cp .env.example .env
@@ -21,14 +31,25 @@ docker compose config
 docker compose up --build -d
 
 curl http://localhost:8000/api/health
+curl http://localhost:8000/api/liveness
 curl http://localhost:8000/api/readiness
 curl http://localhost:8000/api/campaigns
-curl http://localhost:8000/api/companies
 ```
 
-Frontend: http://localhost:8080 В· Swagger: http://localhost:8000/docs
+- Frontend: http://localhost:8080
+- Swagger: http://localhost:8000/docs
 
-Backend РїСЂРё СЃС‚Р°СЂС‚Рµ РІС‹РїРѕР»РЅСЏРµС‚ `alembic upgrade head` (С‚РѕР»СЊРєРѕ СЃРµСЂРІРёСЃ `backend`, РЅРµ worker/scheduler).
+Backend при старте выполняет `alembic upgrade head` (только сервис `backend`).
+
+### Production-like (локально, без реального VPS)
+
+```bash
+PRODUCTION_ENV_FILE=.env.production.smoke \
+  docker compose -f docker-compose.yml -f docker-compose.prod.yml \
+  --env-file .env.production.smoke up -d --build
+```
+
+В smoke-окружении: `SYSTEM_STOP_ALL=true`, live flags выключены, credentials пустые.
 
 ## Alembic
 
@@ -38,55 +59,60 @@ docker compose exec backend alembic heads
 docker compose exec backend alembic upgrade head
 ```
 
-Ревизии: `0001` → `0002` → `0003_research_runs` → `0004_qualification` → `0005_safe_outreach` → `0006_test_campaign_execution` → `0007_compliance_ready` → `0008_controlled_live_pilot`.
+Ревизии: `0001` → `0002` → `0003` → `0004` → `0005` → `0006` → `0007` → `0008_controlled_live_pilot`.
 
-Документы: [docs/VCd03_SPEC.md](docs/VCd03_SPEC.md), [STAGE2](docs/STAGE2_RESEARCH.md), [STAGE3](docs/STAGE3_QUALIFICATION.md), [STAGE4](docs/STAGE4_SAFE_OUTREACH.md), [STAGE5](docs/STAGE5_TEST_ORCHESTRATION.md), [STAGE6](docs/STAGE6_COMPLIANCE_READINESS.md), [STAGE7A](docs/STAGE7_CONTROLLED_LIVE_PILOT.md).
+Stage 8 миграций не добавлял.
 
-## РџСЂР°РІРёР»Р° РєР°РјРїР°РЅРёР№ (СЌС‚Р°Рї 1)
+## Правила безопасности (кратко)
 
-- `max_companies`: 1вЂ“30
-- `max_emails_per_lead`: 1вЂ“3
-- `sending_mode`: С‚РѕР»СЊРєРѕ `TEST` РёР»Рё `MANUAL_APPROVAL` (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ `MANUAL_APPROVAL`)
-- РЎРѕР·РґР°РЅРёРµ РІСЃРµРіРґР° РІ СЃС‚Р°С‚СѓСЃРµ `DRAFT`
-- РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ С‡РµСЂРµР· PATCH РјРѕР¶РµС‚ РІС‹СЃС‚Р°РІР»СЏС‚СЊ С‚РѕР»СЊРєРѕ `DRAFT` / `PAUSED` / `CANCELLED`
-- РџСЂРёРІСЏР·РєР° РєРѕРјРїР°РЅРёРё: `approved_for_email=false`; РґСѓР±Р»РёРєР°С‚ в†’ 409; Р»РёРјРёС‚ в†’ 400
-- РЈРґР°Р»РµРЅРёРµ СЃРІСЏР·Рё РЅРµ СѓРґР°Р»СЏРµС‚ РєРѕРјРїР°РЅРёСЋ
+- `SYSTEM_STOP_ALL` имеет высший приоритет
+- Outreach: manual approval + TestEmailProvider (тест)
+- Compliance / suppression (Stage 6) не обходятся
+- Live pilot (7A): allowlist `@example.test`, dry-run only; **нет live-send API**
+- Stage 7B (реальный provider / canary) — только после явного решения владельца
+- Секреты не коммитятся (`.env`, `.env.production` в `.gitignore`)
 
-## РЎРѕРіР»Р°СЃРёРµ РЅР° РєРѕРЅС‚Р°РєС‚
-
-- `consent_status` РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ `UNKNOWN`
-- РџСѓР±Р»РёС‡РЅРѕ РЅР°Р№РґРµРЅРЅС‹Р№ email **РЅРµ** СЃС‡РёС‚Р°РµС‚СЃСЏ СЃРѕРіР»Р°СЃРёРµРј
-- UI РїРѕРєР°Р·С‹РІР°РµС‚: В«РЎРѕРіР»Р°СЃРёРµ РЅР° СЂР°СЃСЃС‹Р»РєСѓ РЅРµ РїРѕРґС‚РІРµСЂР¶РґРµРЅРѕВ»
-- `do_not_contact` РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ `false`, РѕС‚РѕР±СЂР°Р¶Р°РµС‚СЃСЏ Р·Р°РјРµС‚РЅРѕ
-- РћС‚РїСЂР°РІРєР° РїРёСЃРµРј РЅР° СЌС‚Р°РїРµ 1 РЅРµРІРѕР·РјРѕР¶РЅР°
-
-## Demo seed (РІСЂСѓС‡РЅСѓСЋ)
+## Demo seed
 
 ```bash
 docker compose exec backend python -m app.scripts.seed_demo_data
 ```
 
-РРґРµРјРїРѕС‚РµРЅС‚РЅРѕ; Р°РґСЂРµСЃР° С‚РѕР»СЊРєРѕ `@*.example.com`. РќРµ Р·Р°РїСѓСЃРєР°РµС‚СЃСЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё.
+Идемпотентно; адреса только `@*.example.com`. Не запускается автоматически.
 
-## РўРµСЃС‚С‹
+## Тесты и smoke
 
 ```bash
-# Р’ РєРѕРЅС‚РµР№РЅРµСЂРµ (СЂРµРєРѕРјРµРЅРґСѓРµС‚СЃСЏ РЅР° Windows)
-docker compose exec backend sh -c 'export TEST_DATABASE_URL="${DATABASE_URL%/leadflow}/leadflow_test"; pytest -v'
+# Backend (рекомендуется в контейнере на Windows)
+docker compose exec backend sh -c 'export TEST_DATABASE_URL="${DATABASE_URL%/leadflow}/leadflow_test"; pytest -q'
 
 # Frontend
 cd frontend && npm run build
+
+# Smoke
+docker compose exec backend python scripts/smoke_stage7_testdb.py
+docker compose exec backend python scripts/smoke_stage8.py
 ```
 
-## Smoke
+Ожидаемо в smoke: `live_sent=0`.
 
-```bash
-python backend/scripts/smoke_stage1.py
-```
+## Документация
 
-## Р”РѕРєСѓРјРµРЅС‚Р°С†РёСЏ
-
-- [docs/VCd03_SPEC.md](docs/VCd03_SPEC.md)
+- [HOMEWORK_FINAL_REPORT.md](HOMEWORK_FINAL_REPORT.md) — итоговый отчёт сдачи
+- [docs/FINAL_DEMO_CHECKLIST.md](docs/FINAL_DEMO_CHECKLIST.md) — чеклист демонстрации
+- [docs/VCd03_SPEC.md](docs/VCd03_SPEC.md) — спецификация этапов
+- [docs/STAGE2_RESEARCH.md](docs/STAGE2_RESEARCH.md) … [docs/STAGE8_PRODUCTION_HARDENING_DEPLOYMENT.md](docs/STAGE8_PRODUCTION_HARDENING_DEPLOYMENT.md)
+- [docs/STAGE7_PROVIDER_SELECTION.md](docs/STAGE7_PROVIDER_SELECTION.md) — подготовка к 7B (не активация)
+- [DEPLOYMENT.md](DEPLOYMENT.md) — runbooks (без фактического VPS в рамках ДЗ)
 - [SECURITY.md](SECURITY.md)
-- [DEPLOYMENT.md](DEPLOYMENT.md)
-- [HOMEWORK_REPORT.md](HOMEWORK_REPORT.md)
+- Per-stage: `HOMEWORK_REPORT.md`, `HOMEWORK_REPORT_STAGE2.md` … `HOMEWORK_REPORT_STAGE7A.md`
+
+## Roadmap status
+
+| Stage | Status |
+|-------|--------|
+| 0–6 | Done |
+| 7A Controlled Live Pilot | Done |
+| 7B Provider + canary | **Pending / optional (owner)** |
+| 8 Production Hardening | Done |
+| 9 | **Does not exist** |

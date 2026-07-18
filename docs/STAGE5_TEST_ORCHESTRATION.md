@@ -143,11 +143,13 @@ DB-derived TEST metrics: approved leads/messages, sent/failed/blocked/unknown/re
 - Logs: no body, recipient, tokens, or secrets
 - `beat_schedule` empty — no periodic auto-start
 
-## Roadmap (not implemented)
+## Roadmap (project status)
 
-- **Stage 6** — Compliance, Suppression & Provider Readiness
-- **Stage 7** — Controlled Live Pilot
-- **Stage 8** — Production Hardening & Deployment
+- **Stage 6** — Compliance, Suppression & Provider Readiness — **done**
+- **Stage 7A** — Controlled Live Pilot — **done** (no real sends)
+- **Stage 7B** — Owner-selected provider + canary — **pending / optional**
+- **Stage 8** — Production Hardening & Deployment — **done**
+- **Stage 9** — does not exist
 
 ## Критерии готовности
 
