@@ -86,6 +86,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Compose env_file paths must exist on a clean runner; never commit real secrets.
+      # .env is gitignored — materialize from tracked templates for CI only.
+      - name: Materialize safe CI env files
+        run: |
+          cp .env.example .env
+          test -f .env.production.smoke
+          grep -q '^SYSTEM_STOP_ALL=true' .env.production.smoke
+          grep -q '^REAL_EMAIL_PROVIDER_ENABLED=false' .env.production.smoke
+          grep -q '^LIVE_OUTREACH_ENABLED=false' .env.production.smoke
+
       - name: Docker compose config (dev)
         run: docker compose config
 
