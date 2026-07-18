@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from app.logging.setup import redact_secrets
 
 
@@ -20,4 +22,11 @@ def test_redacts_api_key() -> None:
     text = "api_key=sk-live-abc123xyz"
     result = redact_secrets(text)
     assert "sk-live" not in result
+    assert "***REDACTED***" in result
+
+
+def test_redacts_bearer_token() -> None:
+    text = "Authorization: Bearer secret-token-value"
+    result = redact_secrets(text)
+    assert "secret-token-value" not in result
     assert "***REDACTED***" in result

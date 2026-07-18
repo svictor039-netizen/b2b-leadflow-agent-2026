@@ -11,7 +11,13 @@ SECRET_PATTERNS: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"(token\s*[=:]\s*)[^\s,\"']+", re.IGNORECASE), r"\1***REDACTED***"),
     (re.compile(r"(DATABASE_URL\s*[=:]\s*)[^\s,\"']+", re.IGNORECASE), r"\1***REDACTED***"),
     (re.compile(r"(REDIS_URL\s*[=:]\s*)[^\s,\"']+", re.IGNORECASE), r"\1***REDACTED***"),
-    (re.compile(r"(CELERY_BROKER_URL\s*[=:]\s*)[^\s,\"']+", re.IGNORECASE), r"\1***REDACTED***"),
+    (re.compile(r"(Authorization\s*:\s*Bearer\s+)\S+", re.IGNORECASE), r"\1***REDACTED***"),
+    (re.compile(r"(Authorization\s*:\s*)\S+", re.IGNORECASE), r"\1***REDACTED***"),
+    (re.compile(r"([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})"), "***EMAIL_REDACTED***"),
+    (re.compile(r"(subject\s*[=:]\s*)[^\n]{0,200}", re.IGNORECASE), r"\1***REDACTED***"),
+    (re.compile(r"(body\s*[=:]\s*)[^\n]{0,500}", re.IGNORECASE), r"\1***REDACTED***"),
+    (re.compile(r"(confirmation_token\s*[=:]\s*)[^\s,\"']+", re.IGNORECASE), r"\1***REDACTED***"),
+    (re.compile(r"(approval_token\s*[=:]\s*)[^\s,\"']+", re.IGNORECASE), r"\1***REDACTED***"),
 ]
 
 

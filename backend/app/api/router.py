@@ -7,6 +7,7 @@ from app.api import (
     execution,
     health,
     live_pilots,
+    metrics,
     outreach,
     qualification,
     research,
@@ -14,6 +15,7 @@ from app.api import (
 
 api_router = APIRouter(prefix="/api")
 api_router.include_router(health.router)
+api_router.include_router(metrics.router)
 api_router.include_router(campaigns.router)
 api_router.include_router(companies.router)
 api_router.include_router(research.router)

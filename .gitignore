@@ -40,3 +40,5 @@ Thumbs.db
 *.key
 credentials.json
 secrets/
+backups/
+.env.production

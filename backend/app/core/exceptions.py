@@ -12,14 +12,17 @@ class AppError(Exception):
 
 def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(AppError)
-    async def app_error_handler(_request: Request, exc: AppError) -> JSONResponse:
+    async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
+        request_id = getattr(request.state, "request_id", "-")
         return JSONResponse(
             status_code=exc.status_code,
             content={"error": {"code": exc.code, "message": exc.message}},
+            headers={"X-Request-ID": request_id},
         )
 
     @app.exception_handler(Exception)
-    async def unhandled_error_handler(_request: Request, _exc: Exception) -> JSONResponse:
+    async def unhandled_error_handler(request: Request, _exc: Exception) -> JSONResponse:
+        request_id = getattr(request.state, "request_id", "-")
         return JSONResponse(
             status_code=500,
             content={
@@ -28,4 +31,5 @@ def register_exception_handlers(app: FastAPI) -> None:
                     "message": "An unexpected error occurred.",
                 }
             },
+            headers={"X-Request-ID": request_id},
         )

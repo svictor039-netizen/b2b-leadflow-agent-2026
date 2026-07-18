@@ -1,0 +1,9 @@
+# TLS mount points for production VPS (manual certificate installation).
+#
+# 1. Obtain certificates via your CA (Let's Encrypt, etc.) — NOT automated in Stage 8.
+# 2. Mount into nginx/proxy container:
+#      volumes:
+#        - ./deploy/tls/fullchain.pem:/etc/nginx/tls/fullchain.pem:ro
+#        - ./deploy/tls/privkey.pem:/etc/nginx/tls/privkey.pem:ro
+# 3. Uncomment the TLS server block in deploy/nginx.prod.conf
+# 4. Set FRONTEND_ORIGIN=https://your-domain.example
