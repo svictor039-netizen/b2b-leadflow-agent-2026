@@ -1,8 +1,9 @@
 # B2B LeadFlow Agent 2026
 
-Проект VCd03 — этапы 0–6. B2B lead generation: Docker, кампании/компании, safe research (Stage 2),
+Проект VCd03 — этапы 0–7A. B2B lead generation: Docker, кампании/компании, safe research (Stage 2),
 квалификация (Stage 3), TestEmailProvider outreach (Stage 4), тестовый orchestration (Stage 5),
-compliance / suppression / provider readiness (Stage 6). Реальная рассылка **не реализована**.
+compliance / suppression / provider readiness (Stage 6), controlled live pilot infrastructure (Stage 7A).
+Реальная рассылка **не реализована** — live delivery disabled.
 
 ## РЎС‚РµРє
 
@@ -37,9 +38,9 @@ docker compose exec backend alembic heads
 docker compose exec backend alembic upgrade head
 ```
 
-Ревизии: `0001` → `0002` → `0003_research_runs` → `0004_qualification` → `0005_safe_outreach` → `0006_test_campaign_execution` → `0007_compliance_ready`.
+Ревизии: `0001` → `0002` → `0003_research_runs` → `0004_qualification` → `0005_safe_outreach` → `0006_test_campaign_execution` → `0007_compliance_ready` → `0008_controlled_live_pilot`.
 
-Документы: [docs/VCd03_SPEC.md](docs/VCd03_SPEC.md), [STAGE2](docs/STAGE2_RESEARCH.md), [STAGE3](docs/STAGE3_QUALIFICATION.md), [STAGE4](docs/STAGE4_SAFE_OUTREACH.md), [STAGE5](docs/STAGE5_TEST_ORCHESTRATION.md), [STAGE6](docs/STAGE6_COMPLIANCE_READINESS.md).
+Документы: [docs/VCd03_SPEC.md](docs/VCd03_SPEC.md), [STAGE2](docs/STAGE2_RESEARCH.md), [STAGE3](docs/STAGE3_QUALIFICATION.md), [STAGE4](docs/STAGE4_SAFE_OUTREACH.md), [STAGE5](docs/STAGE5_TEST_ORCHESTRATION.md), [STAGE6](docs/STAGE6_COMPLIANCE_READINESS.md), [STAGE7A](docs/STAGE7_CONTROLLED_LIVE_PILOT.md).
 
 ## РџСЂР°РІРёР»Р° РєР°РјРїР°РЅРёР№ (СЌС‚Р°Рї 1)
 

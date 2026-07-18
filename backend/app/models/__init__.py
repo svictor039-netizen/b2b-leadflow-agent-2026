@@ -13,6 +13,13 @@ from app.models.outreach_template import OutreachTemplate
 from app.models.qualification_run import QualificationRun
 from app.models.research_run import ResearchRun
 from app.models.send_attempt import SendAttempt
+from app.models.live_pilot import (
+    LivePilot,
+    LivePilotAllowlistEntry,
+    LivePilotApproval,
+    LivePilotEvent,
+    LivePilotRecipient,
+)
 from app.models.suppression_entry import SuppressionEntry
 from app.models.enums import (
     ALLOWED_OUTREACH_PROVIDER,
@@ -87,6 +94,11 @@ __all__ = [
     "ExecutionMode",
     "ExecutionRunStatus",
     "LeadScoreSnapshot",
+    "LivePilot",
+    "LivePilotAllowlistEntry",
+    "LivePilotApproval",
+    "LivePilotEvent",
+    "LivePilotRecipient",
     "OutreachApprovalDecision",
     "OutreachMessage",
     "OutreachMessageStatus",

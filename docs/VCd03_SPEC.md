@@ -202,9 +202,35 @@ API кампаний/компаний/локаций/контактов. Fronten
 
 См. [STAGE6_COMPLIANCE_READINESS.md](STAGE6_COMPLIANCE_READINESS.md)
 
-## Roadmap (будущие этапы — не в scope Stage 6)
+## Stage 7A — Controlled Live Pilot Infrastructure (provider-neutral)
+
+**Русское название:** Этап 7A — инфраструктура управляемого живого пилота (без реальной отправки).
+
+### Цель
+
+Подготовить систему к ограниченному live pilot: модели `LivePilot*`, allowlist, multi-gate approval, typed confirmation, dry-run через `TestEmailProvider`, `DisabledLiveEmailProvider` — **без** реальной отправки, credentials, network и выбора provider.
+
+### Модели (migration `0008`)
+
+- `LivePilot`, `LivePilotRecipient`, `LivePilotApproval`, `LivePilotEvent`, `LivePilotAllowlistEntry`
+
+### API
+
+- `/api/live-pilots` (+ validate, approve, cancel, dry-run, readiness, recipients)
+
+### Safety
+
+- `live_delivery_enabled` всегда `false` на 7A
+- Daily/per-minute live limits = 0 на 7A
+- Только `@example.test` allowlist
+- Stage 6 compliance + `SYSTEM_STOP_ALL` не обходятся
+- Нет live-send endpoint; `beat_schedule` пуст
+
+См. [STAGE7_CONTROLLED_LIVE_PILOT.md](STAGE7_CONTROLLED_LIVE_PILOT.md), [STAGE7_PROVIDER_SELECTION.md](STAGE7_PROVIDER_SELECTION.md)
+
+## Roadmap (будущие этапы — не в scope Stage 7A)
 
 | Stage | Название |
 |---|---|
-| 7 | Controlled Live Pilot |
-| 8 | Production Hardening & Deployment | |
+| 7B | Owner-selected provider + one manual canary |
+| 8 | Production Hardening & Deployment |
