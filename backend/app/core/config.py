@@ -12,9 +12,13 @@ class Settings(BaseSettings):
     )
 
     app_name: str = "B2B LeadFlow Agent"
-    app_version: str = Field(default="0.8.0-stage7a", alias="APP_VERSION")
+    app_version: str = Field(default="0.9.0-stage8", alias="APP_VERSION")
     environment: str = "development"
     debug: bool = False
+    allow_insecure_local_production_smoke: bool = Field(
+        default=False,
+        alias="ALLOW_INSECURE_LOCAL_PRODUCTION_SMOKE",
+    )
 
     database_url: str = Field(
         default="postgresql://leadflow:leadflow@postgres:5432/leadflow",
@@ -54,6 +58,10 @@ class Settings(BaseSettings):
     celery_result_backend: str | None = Field(default=None, alias="CELERY_RESULT_BACKEND")
 
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
+
+    @property
+    def is_production(self) -> bool:
+        return self.environment.lower() == "production"
 
     @property
     def broker_url(self) -> str:

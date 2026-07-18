@@ -17,8 +17,9 @@ def client() -> TestClient:
 )
 def test_readiness(client: TestClient) -> None:
     response = client.get("/api/readiness")
-    assert response.status_code == 200
+    assert response.status_code in {200, 503}
     data = response.json()
     assert "checks" in data
     assert "postgres" in data["checks"]
     assert "redis" in data["checks"]
+    assert "migrations" in data["checks"]

@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "feature/**"]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: leadflow
+          POSTGRES_PASSWORD: leadflow_dev_password
+          POSTGRES_DB: leadflow
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U leadflow -d leadflow"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://leadflow:leadflow_dev_password@localhost:5432/leadflow
+      REDIS_URL: redis://localhost:6379/0
+      SYSTEM_STOP_ALL: "false"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Block committed secret env files
+        run: |
+          forbidden=$(git ls-files '.env' '.env.production' '.env.local' '**/credentials.json' || true)
+          if [ -n "$forbidden" ]; then
+            echo "Forbidden secret files tracked in git:"
+            echo "$forbidden"
+            exit 1
+          fi
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+
+      - name: Backend tests
+        working-directory: backend
+        run: pytest -q
+
+      - name: Migration tests
+        working-directory: backend
+        run: pytest -q tests/test_migrations.py
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+      - name: Frontend build
+        working-directory: frontend
+        run: npm run build
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Compose env_file paths must exist on a clean runner; never commit real secrets.
+      # .env is gitignored — materialize from tracked templates for CI only.
+      - name: Materialize safe CI env files
+        run: |
+          cp .env.example .env
+          test -f .env.production.smoke
+          grep -q '^SYSTEM_STOP_ALL=true' .env.production.smoke
+          grep -q '^REAL_EMAIL_PROVIDER_ENABLED=false' .env.production.smoke
+          grep -q '^LIVE_OUTREACH_ENABLED=false' .env.production.smoke
+
+      - name: Docker compose config (dev)
+        run: docker compose config
+
+      - name: Docker compose config (production)
+        run: PRODUCTION_ENV_FILE=.env.production.smoke docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.production.smoke config
+
+      - name: Docker compose build
+        run: PRODUCTION_ENV_FILE=.env.production.smoke docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.production.smoke build

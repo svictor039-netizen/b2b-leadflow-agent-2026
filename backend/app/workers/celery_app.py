@@ -3,8 +3,17 @@ import logging
 from celery import Celery
 
 from app.core.config import get_settings
+from app.core.production_validation import (
+    format_production_validation_error,
+    validate_production_settings,
+)
 
 settings = get_settings()
+
+if settings.is_production:
+    _celery_validation_errors = validate_production_settings(settings)
+    if _celery_validation_errors:
+        raise RuntimeError(format_production_validation_error(_celery_validation_errors))
 
 celery_app = Celery(
     "leadflow",

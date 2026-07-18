@@ -15,7 +15,12 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 
 COPY . .
 
+RUN useradd --create-home --uid 1000 appuser \
+    && chown -R appuser:appuser /app
+
 RUN chmod +x /app/entrypoint.sh
+
+USER appuser
 
 EXPOSE 8000
 

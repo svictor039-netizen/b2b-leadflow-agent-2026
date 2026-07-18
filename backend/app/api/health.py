@@ -1,8 +1,8 @@
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 
 from app.core.config import get_settings
-from app.core.database import check_database_connection
-from app.core.redis_client import check_redis_connection
+from app.services.readiness_service import build_readiness_report
 
 router = APIRouter(tags=["system"])
 
@@ -15,18 +15,24 @@ def health() -> dict:
     }
 
 
-@router.get("/readiness")
-def readiness() -> dict:
-    postgres_ok = check_database_connection()
-    redis_ok = check_redis_connection()
-    ready = postgres_ok and redis_ok
+@router.get("/liveness")
+def liveness() -> dict:
     return {
-        "status": "ready" if ready else "not_ready",
-        "checks": {
-            "postgres": "ok" if postgres_ok else "fail",
-            "redis": "ok" if redis_ok else "fail",
-        },
+        "status": "alive",
+        "service": get_settings().app_name,
     }
+
+
+@router.get("/readiness")
+def readiness() -> JSONResponse:
+    report = build_readiness_report()
+    payload = {
+        "status": report.status,
+        "checks": report.checks,
+        "runtime": report.runtime,
+    }
+    status_code = 200 if report.ready else 503
+    return JSONResponse(status_code=status_code, content=payload)
 
 
 @router.get("/version")
@@ -35,5 +41,5 @@ def version() -> dict:
     return {
         "version": settings.app_version,
         "environment": settings.environment,
-        "stage": "3",
+        "stage": "8",
     }
