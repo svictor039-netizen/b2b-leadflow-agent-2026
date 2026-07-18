@@ -97,7 +97,7 @@ export function QualificationPanel({
   return (
     <div className="space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
       <div>
-        <h4 className="font-semibold text-slate-900">Квалификация лидов (Stage 3)</h4>
+        <h4 className="font-semibold text-slate-900">Квалификация лидов</h4>
         <p className="text-xs text-slate-500">
           Детерминированный score 0–100. Email не отправляется. Только тестовые данные.
         </p>

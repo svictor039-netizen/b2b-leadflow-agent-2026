@@ -8,6 +8,12 @@ export interface ReadinessResponse {
   checks: {
     postgres: string;
     redis: string;
+    migrations?: string;
+  };
+  runtime?: {
+    environment?: string;
+    system_stop_all?: boolean;
+    live_provider_disabled?: boolean;
   };
 }
 

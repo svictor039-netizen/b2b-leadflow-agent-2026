@@ -4,9 +4,10 @@ export function TestModeBanner() {
       role="alert"
       className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900"
     >
-      <strong className="font-semibold">Тестовый режим (Stage 3).</strong> Реальная отправка
-      email отключена. Qualification не вызывает TestEmailProvider. Источник: TestSourceAdapter /
-      provenance Stage 2. Письма и outreach — только в Stage 4.
+      <strong className="font-semibold">Safe demo mode.</strong>{" "}
+      SYSTEM_STOP_ALL=true · live provider disabled · live_sent=0 · реальные письма не
+      отправляются · Stage 7B pending. TestEmailProvider используется только в тестовых
+      сценариях (dry-run / test send), без внешнего SMTP/API.
     </div>
   );
 }
